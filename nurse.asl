@@ -23,7 +23,8 @@ too_soon(M) :-
    TakenHour > (HH-F).
 
 // Prolog-like rule
-
+owner_liar(Qtd,Qi,Qf) :-
+	Qf > Qi-Qtd.
 
 
 /* Plans */
@@ -84,8 +85,8 @@ too_soon(M) :-
 	       
 +!update(M) <-
 	deliver(M,3);
-	+available(M,fridge);
-	!go_at(robot,fridge).
+	+available(M,medication);
+	!go_at(robot,medication).
 	//.abolish(stock(Something,_));
 	//+stock(Something,3).
 /*
@@ -111,16 +112,33 @@ too_soon(M) :-
 	+available(M, fridge);
 	!bring(owner, M).
 
-// when the fridge is opened, the medication stock is perceived
+// when the medication is opened, the medication stock is perceived
 // and thus the available belief is updated
-+stock(M, 0) :  available(M, fridge)
-   <- -available(M, fridge).
-+stock(M, N) :  N > 0 & not available(M, fridge) & at(robot,fridge)
-   <- -+available(M, fridge). // generates again available event
++stock(M, 0) :  available(M, medication)
+   <- -available(M, medication).
++stock(M, N) :  N > 0 & not available(M, medication) & at(robot,medication)
+   <- -+available(M, medication). // generates again available event
 //*
-+stock(M,N) :  N > 0 & not available(M,fridge) & not at(robot,fridge)
-   <- !go_at(robot,fridge).
++stock(M,N) :  N > 0 & not available(M,medication) & not at(robot,medication)
+   <- !go_at(robot,medication).
 //*/ 
 +?time(T) : true
   <-  time.check(T). // Internal action implemented in JAVA => Folder.class(Params)
 
++check_taken(Medication,Qtd)[source(owner)] : true
+<- !go_at(robot, medication);
+	?stock(Medication,Qi);
+	open(medication);
+    close(medication);
+	?stock(Medication,Qf);
+	!inform_owner(Medication,Qtd,Qi,Qf).
+	
++!inform_owner(Medication,Qtd,Qi,Qf) : not owner_liar(Qtd,Qi,Qf)
+<- 	.concat("I am registering that you took ", Qtd, " units of medication ", Medication, Msg);
+	.send(owner,tell,msg(Msg));
+	.date(YY, MM, DD); .time(HH, NN, SS);
+     +consumed(YY, MM, DD, HH, NN, SS, Medication).
+	 
++!inform_owner(Medication,Qtd,Qi,Qf) : owner_liar(Qtd,Qi,Qf)
+<- 	.concat("You are lying me, you didn't take your dose", Msg);
+	.send(owner,tell,msg(Msg)).

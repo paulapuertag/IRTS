@@ -42,6 +42,9 @@ medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every
       //.send(robot, askOne, time(_), R); // when bored, I ask the robot about the time
       .print(R);
       !start.//!check_bored.
+	  
++!warn_taken(Medication,Qtd) : medication(Medication, _, _)
+   <- .send(robot, tell, check_taken(Medication,Qtd)).
 
 +!go_at(owner,P) : at(owner,P) <- true.
 +!go_at(owner,P) : not at(owner,P)

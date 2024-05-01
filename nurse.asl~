@@ -1,7 +1,7 @@
 /* Initial beliefs and rules */
 
 // initially, I believe that there is some medication in the fridge
-available(ibuprofen, fridge).
+available(ibuprofen, medication).
 
 // my owner should not consume more than the limit a day 
 // TODO: should be informed by the owner at the beginning
@@ -23,17 +23,18 @@ too_soon(M) :-
    TakenHour > (HH-F).
 
 // Prolog-like rule
-
+owner_liar(Qtd,Qi,Qf) :-
+	Qf > Qi-Qtd.
 
 
 /* Plans */
 
 +!bring(owner, M)
- :  available(M, fridge) & not too_much(M) & not too_soon(M) //green shows a believe
-   <- !go_at(robot, fridge);
-      open(fridge);	// orange shows that something is requested to be changed in environment
+ :  available(M, medication) & not too_much(M) //& not too_soon(M) //green shows a believe
+   <- !go_at(robot, medication);
+      open(medication);	// orange shows that something is requested to be changed in environment
       get(M);
-      close(fridge);
+      close(medication);
       !go_at(robot, owner);
       hand_in(M);
       ?has(owner, M);
@@ -43,7 +44,7 @@ too_soon(M) :-
       //.wait(F*3600); // wait for F hours(seconds) before bringing the medication again
       //+!bring(owner, M).
 
-+!bring(owner,M) : not available(M,fridge) <- 
++!bring(owner,M) : not available(M,medication) <- 
 	!movingHome(robot);
 	!update(M);   
 	.wait(300);
@@ -54,9 +55,9 @@ too_soon(M) :-
       !go_at(robot,delivery). // go to delivery and wait there.
 */
 
-+!bring(owner, M) : (too_much(M) || too_soon(M)) && limit(M,Q,F) // (Think is done) Change the formula to adjust with periodicity
++!bring(owner, M) : (too_much(M) | too_soon(M)) & limit(M,Q,F) // (Think is done) Change the formula to adjust with periodicity
    <- .concat("The Department of Health does not allow me to give you more than ", Q,
-              " units of ", M, " every " + F + " hours! I am very sorry about that!", Msg);
+              " units of ", M, " every " , F , " hours! I am very sorry about that!", Msg);
 	!go_at(robot,washer);//!go_at(robot, sofa);
    .send(owner, tell, msg(Msg));
 	.wait(30000);
@@ -124,3 +125,20 @@ too_soon(M) :-
 +?time(T) : true
   <-  time.check(T). // Internal action implemented in JAVA => Folder.class(Params)
 
++check_taken(Medication,Qtd)[source(owner)] : true
+<- !go_at(robot, medication);
+	?stock(Medication,Qi);
+	open(medication);
+    close(medication);
+	?stock(Medication,Qf);
+	!inform_owner(Medication,Qtd,Qi,Qf).
+	
++!inform_owner(Medication,Qtd,Qi,Qf) : not owner_liar(Qtd,Qi,Qf)
+<- 	.concat("I am registering that you took ", Qtd, " units of medication ", Medication, Msg);
+	.send(owner,tell,msg(Msg));
+	.date(YY, MM, DD); .time(HH, NN, SS);
+     +consumed(YY, MM, DD, HH, NN, SS, Medication).
+	 
++!inform_owner(Medication,Qtd,Qi,Qf) : owner_liar(Qtd,Qi,Qf)
+<- 	.concat("You are lying me, you didn't take your dose", Msg);
+	.send(owner,tell,msg(Msg)).
