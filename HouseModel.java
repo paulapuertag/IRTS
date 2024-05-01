@@ -29,6 +29,7 @@ public class HouseModel extends GridWorldModel {
     public static final int DELIVER = 2048;
     public static final int MEDICINE = 4096;
 
+    public static final int ROBOT = 0;
     // the grid size                                                     
     public static final int GSize = 12;     //Cells
     public final int GridSize = 1080;    	//Width
@@ -156,7 +157,7 @@ public class HouseModel extends GridWorldModel {
 
         // initial location of robot (column 3, line 3)
         // ag code 0 means the robot
-        setAgPos(0, 2, 4);
+        setAgPos(ROBOT, 2, 4);
         setAgPos(1, GSize / 2 + 2, GSize - 3);
         //setAgPos(2, GSize*2-1, GSize*3/5); 
 
@@ -254,7 +255,7 @@ public class HouseModel extends GridWorldModel {
 
     boolean sit(int Ag, Location dest) {
         Location loc = getAgPos(Ag);
-        if (loc.isNeigbour(dest)) {
+        if (loc.isNeigbour(dest) && Ag!= ROBOT) {
             setAgPos(Ag, dest);
         };
         return true;
@@ -347,27 +348,29 @@ public class HouseModel extends GridWorldModel {
         };
 
         if (r1.distance(dest) > 0) {
+
             if (r1.x < dest.x && canMoveTo(Ag, r1.x + 1, r1.y)) {
                 r1.x++;
             } else if (r1.x > dest.x && canMoveTo(Ag, r1.x - 1, r1.y)) {
                 r1.x--;
-            } else if (r1.y < dest.y && r1.distance(dest) > 0 && canMoveTo(Ag, r1.x, r1.y + 1)) {
+            } else if (r1.y < dest.y && canMoveTo(Ag, r1.x, r1.y + 1)) {
                 r1.y++;
-            } else if (r1.y > dest.y && r1.distance(dest) > 0 && canMoveTo(Ag, r1.x, r1.y - 1)) {
+            } else if (r1.y > dest.y &&  canMoveTo(Ag, r1.x, r1.y - 1)) {
                 r1.y--;
             };
-        };
 
-        if (r1 == r2 && r1.distance(dest) > 0) { // could not move the agent
+        };
+        if (r1.equals(r2) && r1.distance(dest) > 0) { // could not move the agent
             if (r1.x == dest.x && canMoveTo(Ag, r1.x + 1, r1.y)) {
                 r1.x++;
             } else if (r1.x == dest.x && canMoveTo(Ag, r1.x - 1, r1.y)) {
                 r1.x--;
-            } else if (r1.y == dest.y && canMoveTo(Ag, r1.x, r1.y + 1)) {
-                r1.y++;
             } else if (r1.y == dest.y && canMoveTo(Ag, r1.x, r1.y - 1)) {
                 r1.y--;
-            };
+            } else if (r1.y == dest.y && canMoveTo(Ag, r1.x, r1.y + 1)) {
+                r1.y++;
+            }
+            System.out.println("update agent: " + Ag + "to: " + r1);
         };
 
         setAgPos(Ag, r1); // update the agent's location in the grid 

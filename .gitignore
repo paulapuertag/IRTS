@@ -3,3 +3,6 @@ bin/build.xml
 *.xml
 *.class
 
+bin/build.xml
+/bin
+/bin/classes

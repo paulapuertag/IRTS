@@ -418,12 +418,12 @@ public class HouseView extends GridWorldView {
         g.setColor(Color.cyan);
         g.drawRect(x * cellSizeW + 1, y * cellSizeH + 1, cellSizeW - 3, cellSizeH - 3);
     }
-/* 
+ /* 
     @Override
     public void actionPerformed(ActionEvent e) {
         // called every 100 milliseconds by the timer
         // you can add any additional logic here if needed
 		update();
     }
-*/    
+  */  
 }
