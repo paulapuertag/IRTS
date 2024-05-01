@@ -458,6 +458,7 @@ public class HouseModel extends GridWorldModel {
 
     boolean handInMedication() {
         if (carryingMedications) {
+			
             doseCount = 10;
             carryingMedications = false;
             //if (view != null)

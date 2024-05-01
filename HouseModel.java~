@@ -5,8 +5,10 @@ import jason.environment.grid.Area;
 import jason.environment.grid.Location;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 //import jason.asSyntax.*;
 /**
@@ -27,6 +29,7 @@ public class HouseModel extends GridWorldModel {
     public static final int DELIVER = 2048;
     public static final int MEDICINE = 4096;
 
+    public static final int ROBOT = 0;
     // the grid size                                                     
     public static final int GSize = 12;     //Cells
     public final int GridSize = 1080;    	//Width
@@ -40,6 +43,8 @@ public class HouseModel extends GridWorldModel {
     boolean carryingBeer = false; 	// whether the robot is carrying beer
     int sipCount = 0; 		// how many sip the owner did
     int availableBeers = 2; 		// how many beers are available
+
+    private static final List<String> restPlaces = List.of("chair1", "chair2", "chair3", "chair4", "sofa");
 
     // Initialization of the objects Location on the domotic home scene 
     Location lSofa = new Location(GSize / 2, GSize - 2);
@@ -81,6 +86,7 @@ public class HouseModel extends GridWorldModel {
     Location lDoorBath1;
     Location lDoorBath2;
 
+    //available medications
     private void initMedications() {
         medications.put("naproxen", 2);
         medications.put("adderall", 2);
@@ -151,7 +157,7 @@ public class HouseModel extends GridWorldModel {
 
         // initial location of robot (column 3, line 3)
         // ag code 0 means the robot
-        setAgPos(0, 2, 4);
+        setAgPos(ROBOT, 2, 4);
         setAgPos(1, GSize / 2 + 2, GSize - 3);
         //setAgPos(2, GSize*2-1, GSize*3/5); 
 
@@ -249,7 +255,7 @@ public class HouseModel extends GridWorldModel {
 
     boolean sit(int Ag, Location dest) {
         Location loc = getAgPos(Ag);
-        if (loc.isNeigbour(dest)) {
+        if (loc.isNeigbour(dest) && Ag!= ROBOT) {
             setAgPos(Ag, dest);
         };
         return true;
@@ -342,27 +348,29 @@ public class HouseModel extends GridWorldModel {
         };
 
         if (r1.distance(dest) > 0) {
+
             if (r1.x < dest.x && canMoveTo(Ag, r1.x + 1, r1.y)) {
                 r1.x++;
             } else if (r1.x > dest.x && canMoveTo(Ag, r1.x - 1, r1.y)) {
                 r1.x--;
-            } else if (r1.y < dest.y && r1.distance(dest) > 0 && canMoveTo(Ag, r1.x, r1.y + 1)) {
+            } else if (r1.y < dest.y && canMoveTo(Ag, r1.x, r1.y + 1)) {
                 r1.y++;
-            } else if (r1.y > dest.y && r1.distance(dest) > 0 && canMoveTo(Ag, r1.x, r1.y - 1)) {
+            } else if (r1.y > dest.y &&  canMoveTo(Ag, r1.x, r1.y - 1)) {
                 r1.y--;
             };
-        };
 
-        if (r1 == r2 && r1.distance(dest) > 0) { // could not move the agent
+        };
+        if (r1.equals(r2) && r1.distance(dest) > 0) { // could not move the agent
             if (r1.x == dest.x && canMoveTo(Ag, r1.x + 1, r1.y)) {
                 r1.x++;
             } else if (r1.x == dest.x && canMoveTo(Ag, r1.x - 1, r1.y)) {
                 r1.x--;
-            } else if (r1.y == dest.y && canMoveTo(Ag, r1.x, r1.y + 1)) {
-                r1.y++;
             } else if (r1.y == dest.y && canMoveTo(Ag, r1.x, r1.y - 1)) {
                 r1.y--;
-            };
+            } else if (r1.y == dest.y && canMoveTo(Ag, r1.x, r1.y + 1)) {
+                r1.y++;
+            }
+            System.out.println("update agent: " + Ag + "to: " + r1);
         };
 
         setAgPos(Ag, r1); // update the agent's location in the grid 
@@ -390,18 +398,18 @@ public class HouseModel extends GridWorldModel {
     }
 
     boolean getMedication(String medication) {
-        int availability = getMedicationAvailable(medication);
+        Integer availability = getMedicationAvailable(medication);
         if (availability != -1) {
-            if (fridgeOpen && availability > 0 && !carryingMedications) {
+            if (medicationOpen && availability > 0 && !carryingMedications) {
                 medications.put(medication, availability--);
                 carryingMedications = true;
                 return true;
             } else {
-                if (fridgeOpen) {
-                    System.out.println("The fridge is opened. ");
+                if (medicationOpen) {
+                    System.out.println("The medicine cabinet is opened. ");
                 };
                 if (availability > 0) {
-                    System.out.println("Pantry has enough of that medication. ");
+                    System.out.println("Medicine cabinet has enough of that medication. ");
                 };
                 if (!carryingMedications) {
                     System.out.println("The robot is not bringing the medication. ");
@@ -422,7 +430,7 @@ public class HouseModel extends GridWorldModel {
         return true;
     }
 
-    boolean addMedication(String medication, int n) {
+    boolean addMedication(String medication, Integer n) {
         int medicationInitialQuantity = getMedicationAvailable(medication);
         if (medicationInitialQuantity != -1) {
             medications.put(medication, medicationInitialQuantity + n);
@@ -480,5 +488,10 @@ public class HouseModel extends GridWorldModel {
         } else {
             return false;
         }
+    }
+
+    public String getRandomRest() {
+        Random rand = new Random();
+        return restPlaces.get(rand.nextInt(restPlaces.size()));
     }
 }

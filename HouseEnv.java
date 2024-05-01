@@ -407,7 +407,7 @@ public class HouseEnv extends Environment {
                 if (ag.equals("robot")) {
                     System.out.println("[robot] is trying to take the medication, but it is not allowed to do it.");
                 } else {
-                    //System.out.println("[owner] is sitting");
+                    System.out.println("[owner] is taking");
                     result = model.sipMedication();
                 }
             } catch (Exception e) {

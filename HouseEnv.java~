@@ -5,14 +5,18 @@ import jaca.CartagoEnvironment;
 import jason.asSyntax.*;
 import jason.environment.Environment;
 import jason.environment.grid.Location;
+import jason.stdlib.string;
+import jason.stdlib.structure;
+
 import java.util.logging.Logger;
+import java.io.StringReader;
 import java.util.Set;
 
 public class HouseEnv extends Environment {
 
     // common literals
-    public static final Literal om = Literal.parseLiteral("open(medication)");// for medication cabinet (to use instead of fridge)
-    public static final Literal clm = Literal.parseLiteral("close(medication)");
+    public static final Literal om = Literal.parseLiteral("open(medicalkit)");// for medication cabinet (to use instead of fridge)
+    public static final Literal clm = Literal.parseLiteral("close(medicalkit)");
     public static final Literal of = Literal.parseLiteral("open(fridge)");
     public static final Literal clf = Literal.parseLiteral("close(fridge)");
     public static final Literal gb = Literal.parseLiteral("get(beer)");
@@ -23,17 +27,17 @@ public class HouseEnv extends Environment {
     public static final Literal gm = Literal.parseLiteral("get(medication)");
     public static final Literal hm = Literal.parseLiteral("hand_in(medication)");
     public static final Literal sm = Literal.parseLiteral("sip(medication)");
-    public static final Literal hom = Literal.parseLiteral("has(owner,medication)");
+    public static final Literal hom = Literal.parseLiteral("has(owner,Medication)");
 
     public static final Literal af = Literal.parseLiteral("at(robot,fridge)");
-    public static final Literal am = Literal.parseLiteral("at(robot,medication)");
+    public static final Literal am = Literal.parseLiteral("at(robot,medicalkit)");
     public static final Literal ao = Literal.parseLiteral("at(robot,owner)");
     public static final Literal ad = Literal.parseLiteral("at(robot,delivery)");
 
     public static final Literal aw = Literal.parseLiteral("at(robot,washer)");
     public static final Literal oaw = Literal.parseLiteral("at(owner,washer)");
     public static final Literal oaf = Literal.parseLiteral("at(owner,fridge)");
-    public static final Literal oam = Literal.parseLiteral("at(owner,medication)");
+    public static final Literal oam = Literal.parseLiteral("at(owner,medicalkit)");
     public static final Literal oac1 = Literal.parseLiteral("at(owner,chair1)");
     public static final Literal oac2 = Literal.parseLiteral("at(owner,chair2)");
     public static final Literal oac3 = Literal.parseLiteral("at(owner,chair3)");
@@ -105,7 +109,7 @@ public class HouseEnv extends Environment {
     void updateThingsPlace() {
         // get the medication cabinet location
         String medicationPlace = model.getRoom(model.lMedication);
-        addPercept(Literal.parseLiteral("atRoom(medication, " + medicationPlace + ")"));
+        addPercept(Literal.parseLiteral("atRoom(medicalkit, " + medicationPlace + ")"));
         String fridgePlace = model.getRoom(model.lFridge);
         addPercept(Literal.parseLiteral("atRoom(fridge, " + fridgePlace + ")"));
         String sofaPlace = model.getRoom(model.lSofa);
@@ -206,11 +210,14 @@ public class HouseEnv extends Environment {
         // add beer "status" the percepts
         if (model.fridgeOpen) {
             addPercept("robot", Literal.parseLiteral("stock(beer," + model.availableBeers + ")"));
-			
-			Set<String> keys = medications.keySet();
-			for (String key : keys) {
-				addPercept("robot", Literal.parseLiteral("stock(" + key + "," + model.medications.get(key) + ")"));
-			}
+
+        }
+        if (model.medicationOpen) {
+
+            Set<String> keys = model.medications.keySet();
+            for (String key : keys) {
+                addPercept("robot", Literal.parseLiteral("stock(" + key + "," + model.medications.get(key) + ")"));
+            }
 
         }
         if (model.sipCount > 0) {
@@ -263,10 +270,10 @@ public class HouseEnv extends Environment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if (action.equals(om)) { // of = open(medication)
+        } else if (action.equals(om)) { // of = open(medicalkit)
             result = model.openMedication();
 
-        } else if (action.equals(clm)) { // clf = close(medication)
+        } else if (action.equals(clm)) { // clf = close(medicalkit)
             result = model.closeMedication();
 
         } else if (action.equals(of)) { // of = open(fridge)
@@ -278,11 +285,15 @@ public class HouseEnv extends Environment {
         } else if (action.getFunctor().equals("move_towards")) {
             String l = action.getTerm(0).toString();
             Location dest = null;
+            if (l.equals("random_place")) {
+                l = model.getRandomRest();
+                System.out.println("random_place: " + l);
+            }
             switch (l) {
                 case "fridge":
                     dest = model.lFridge;
                     break;
-                case "medication":
+                case "medicalkit":
                     dest = model.lMedication;
                     break;
                 case "owner":
@@ -343,6 +354,7 @@ public class HouseEnv extends Environment {
             try {
                 if (ag.equals("robot")) {
                     result = model.moveTowards(0, dest);
+                    System.out.println("robot is moving towards " + dest.toString());
                 } else {
                     result = model.moveTowards(1, dest);
                 }
@@ -368,18 +380,32 @@ public class HouseEnv extends Environment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-        } else if (action.equals(gm)) {
-            result = model.getMedication("naproxen");
-
-        } else if (action.equals(hm)) {
+            //get medicine    
+        } else if (action.getFunctor().equals("get") && action.getArity() == 1) {
+            Term medicine = action.getTerm(0);
+            String name = "";
+            if (medicine.isStructure()) {
+                Structure medication = (Structure) medicine;
+                if (medication.getFunctor().equals("medicine") && medication.getArity() == 2) {
+                    name = medication.getTerm(0).toString();
+                    Integer amount = Integer.parseInt(medication.getTerm(1).toString());
+                    Integer frec = Integer.parseInt(medication.getTerm(0).toString());
+                    result = model.getMedication(name);
+                }
+            } else {
+                name = medicine.toString();
+            }
+            System.out.println("getting medicine: " + name);
+            result = model.getMedication(name);
+            //hand_in medicine
+        } else if (action.getFunctor().equals("hand_in")) {
             result = model.handInMedication();
-
-        } else if (action.equals(sm)) {
+            //takin medicine
+        } else if (action.getFunctor().equals("taking")) {
             //result = model.sipMedication();
             try {
                 if (ag.equals("robot")) {
-                    System.out.println("[robot] is trying to sip medication, but it is not allowed to do it.");
+                    System.out.println("[robot] is trying to take the medication, but it is not allowed to do it.");
                 } else {
                     //System.out.println("[owner] is sitting");
                     result = model.sipMedication();
@@ -391,7 +417,7 @@ public class HouseEnv extends Environment {
         } else if (action.getFunctor().equals("deliver")) {
             // wait 4 seconds to finish "deliver"
             try {
-                result = model.addMedication(action.getTerm(0).toString(),(int) ((NumberTerm) action.getTerm(1)).solve());
+                result = model.addMedication(action.getTerm(0).toString(), (int) ((NumberTerm) action.getTerm(1)).solve());
                 Thread.sleep(4000);
             } catch (Exception e) {
                 logger.info("Failed to execute action deliver!" + e);
