@@ -26,7 +26,7 @@ public class HouseEnv extends Environment {
 
     public static final Literal gm = Literal.parseLiteral("get(medication)");
     public static final Literal hm = Literal.parseLiteral("hand_in(medication)");
-    public static final Literal sm = Literal.parseLiteral("sip(medication)");
+    public static final Literal sm = Literal.parseLiteral("taking(medication)");
     public static final Literal hom = Literal.parseLiteral("has(owner,Medication)");
 
     public static final Literal af = Literal.parseLiteral("at(robot,fridge)");
@@ -401,13 +401,12 @@ public class HouseEnv extends Environment {
         } else if (action.getFunctor().equals("hand_in")) {
             result = model.handInMedication();
             //takin medicine
-        } else if (action.getFunctor().equals("taking")) {
+        }else if (action.getFunctor().equals("sip") && action.getArity() == 1) {
             //result = model.sipMedication();
             try {
                 if (ag.equals("robot")) {
                     System.out.println("[robot] is trying to take the medication, but it is not allowed to do it.");
                 } else {
-                    //System.out.println("[owner] is sitting");
                     result = model.sipMedication();
                 }
             } catch (Exception e) {
