@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "d:\\venev\\Documents\\UDC\\Master\\MasterIA\\Q2\\IRTS\\Laboratory\\jason-3.1\\libs\\jason-3.1.jar"
+    ]
+}

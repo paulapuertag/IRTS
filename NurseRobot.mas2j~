@@ -1,0 +1,19 @@
+/* Jason Project
+
+   See Prometheus specification in doc folder
+   This is a higher view of the original MAS 
+   comming with the distribution                                           
+   It is focused on visibility of actions externally; i.e
+   - perceptions from environment
+   - actions on environment
+   - communication between agents
+
+*/
+
+MAS nurse_robot {
+    environment: HouseEnv  //(gui) // use "nogui" as parameter to not show the GUI
+    agents: robot nurse.asl;
+            owner agentArchClass MixedAgentArch
+				  agentArchClass jaca.CAgentArch;
+            //supermarket provider.asl;
+}
