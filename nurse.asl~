@@ -1,11 +1,11 @@
 /* Initial beliefs and rules */
 
-// initially, I believe that there is some medication in the fridge
-available(ibuprofen, medication).
+// initially, I believe that there is some medication in the medical kit
+available(ibuprofen, medicalkit).
 
 // my owner should not consume more than the limit a day 
 // TODO: should be informed by the owner at the beginning
-limit(ibuprofen, 5, 8). // the owner should take 5 units of ibuprofen every 8 hours
+limit(ibuprofen, 5, 8). // the owner should not take more than 5 units of ibuprofen every 8 hours
 
 // TODO: modificar para que tambien tome en cuenta la ultima vez que se tomo la medicina
 too_much(M) :- // M is variable, if a name starts with capital letter, it's considered a variable
@@ -29,12 +29,12 @@ owner_liar(Qtd,Qi,Qf) :-
 
 /* Plans */
 
-+!bring(owner, M)
- :  available(M, medication) & not too_much(M) //& not too_soon(M) //green shows a believe
-   <- !go_at(robot, medication);
-      open(medication);	// orange shows that something is requested to be changed in environment
++!bring(owner, medication(M,Q,F))
+ :  available(M, medicalkit) & not too_much(M) //& not too_soon(M) //green shows a believe
+   <- !go_at(robot, medicalkit);
+      open(medicalkit);	// orange shows that something is requested to be changed in environment
       get(M);
-      close(medication);
+      close(medicalkit);
       !go_at(robot, owner);
       hand_in(M);
       ?has(owner, M);
@@ -44,18 +44,15 @@ owner_liar(Qtd,Qi,Qf) :-
       //.wait(F*3600); // wait for F hours(seconds) before bringing the medication again
       //+!bring(owner, M).
 
-+!bring(owner,M) : not available(M,medication) <- 
++!bring(owner,medication(M,Q,F)) : not available(M,medicalkit) <- 
 	!movingHome(robot);
 	!update(M);   
 	.wait(300);
 	!bring(owner, M).
-/*
-+!bring(owner, M) :  not available(M, fridge)
-   <- !acquire_medication(M);
-      !go_at(robot,delivery). // go to delivery and wait there.
-*/
 
-+!bring(owner, M) : (too_much(M) | too_soon(M)) & limit(M,Q,F) // (Think is done) Change the formula to adjust with periodicity
+//comento esto para probar solo con limite de cantidad
+//+!bring(owner, M) : (too_much(M) | too_soon(M)) & limit(M,Q,F) 
++!bring(owner, M) : too_much(M) & limit(M,Q,F) // (Think is done) Change the formula to adjust with periodicity
    <- .concat("The Department of Health does not allow me to give you more than ", Q,
               " units of ", M, " every " , F , " hours! I am very sorry about that!", Msg);
 	!go_at(robot,washer);//!go_at(robot, sofa);
@@ -71,10 +68,8 @@ owner_liar(Qtd,Qi,Qf) :-
    <- .current_intention(I);
       .print("Failed to achieve goal '!bring(_,_)'. Current intention is: ",I).
 
-+!movingHome(robot) <-
-	!go_at(robot,fridge); 
-   !waitRandom;                                           
-	!go_at(robot,medication);
++!movingHome(robot) <-                                          
+	!go_at(robot,medicalkit);
 	!waitRandom;
 	!go_at(robot,delivery);
 	!waitRandom.  
@@ -85,17 +80,10 @@ owner_liar(Qtd,Qi,Qf) :-
 	       
 +!update(M) <-
 	deliver(M,3);
-	+available(M,fridge);
-	!go_at(robot,fridge).
+	+available(M,medicalkit);
+	!go_at(robot,medicalkit).
 	//.abolish(stock(Something,_));
 	//+stock(Something,3).
-/*
-+!acquire_medication(M) : true
-   <- +delivered(M, 3, _).
-	//+stock(M,3).// estaría bien si solo quisieramos
-	//llenar más medicina en la nevera, pero estaríamos 
-	//olvidando la parte de llevársela al owner
-*/
 
 +!go_at(robot,P) : at(robot,P) <- true.
 +!go_at(robot,P) : not at(robot,P)
@@ -107,20 +95,20 @@ owner_liar(Qtd,Qi,Qf) :-
   :  true
   <- !go_at(robot, delivery);
   	.wait(200);
-	!go_at(robot, fridge);
+	!go_at(robot, medicalkit);//medication here is the medical kit
 	.wait(200);
-	+available(M, fridge);
+	+available(M, medicalkit);
 	!bring(owner, M).
 
-// when the fridge is opened, the medication stock is perceived
+// when the medication is opened, the medication stock is perceived
 // and thus the available belief is updated
-+stock(M, 0) :  available(M, fridge)
-   <- -available(M, fridge).
-+stock(M, N) :  N > 0 & not available(M, fridge) & at(robot,fridge)
-   <- -+available(M, fridge). // generates again available event
++stock(M, 0) :  available(M, medicalkit)
+   <- -available(M, medicalkit).
++stock(M, N) :  N > 0 & not available(M, medicalkit) & at(robot,medicalkit)
+   <- -+available(M, medicalkit). // generates again available event
 //*
-+stock(M,N) :  N > 0 & not available(M,fridge) & not at(robot,fridge)
-   <- !go_at(robot,fridge).
++stock(M,N) :  N > 0 & not available(M,medicalkit) & not at(robot,medicalkit)
+   <- !go_at(robot,medicalkit).
 //*/ 
 +?time(T) : true
   <-  time.check(T). // Internal action implemented in JAVA => Folder.class(Params)

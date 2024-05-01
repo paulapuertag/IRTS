@@ -24,6 +24,7 @@ public class MixedAgentArch extends AgArch {
         jasonEnvActions.add("sip");
         jasonEnvActions.add("has");
         jasonEnvActions.add("at");
+        jasonEnvActions.add("takin");
         jasonEnvActions.add("move_towards"); 
         jasonEnvActions.add("deliver");
         jasonEnvActions.add("deliverReady");

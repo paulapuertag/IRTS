@@ -32,8 +32,8 @@ medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every
 +!take(M) : not has(owner,M) // we change 'drink(beer)' for 'take(medication)'
    <- true.
    
-+!take(M) : has(owner,M) & medication(M, Q, _)
-   <- taking(medication(M, Q, _)); // we change 'sip(beer);' for 'taking(M)'
++!take(M) : has(owner,M) & medication(M, Q, F)
+   <- sip(M); // we change 'sip(beer);' for 'taking(M)'
       //.wait(F*3600*1000); // wait for F hours before taking the medication again
       !take(M).
 
@@ -55,4 +55,3 @@ medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every
 +msg(M)[source(Ag)] : true
    <- .print("Message from ",Ag,": ",M);
       -msg(M).
-
