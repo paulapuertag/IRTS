@@ -284,6 +284,10 @@ public class HouseEnv extends Environment {
         } else if (action.getFunctor().equals("move_towards")) {
             String l = action.getTerm(0).toString();
             Location dest = null;
+            if (l.equals("random_place")) {
+                l = model.getRandomRest();
+                System.out.println("random_place: " + l); 
+            }
             switch (l) {
                 case "fridge":
                     dest = model.lFridge;
@@ -387,7 +391,6 @@ public class HouseEnv extends Environment {
                 }
             }else{
                 result = model.getMedication(medicine.toString()); 
-                System.err.println("param in get is not structure");
             }
         //hand_in medicine
         }else if (action.getFunctor().equals("hand_in") && isMedicine(action.getTerm(0))) {

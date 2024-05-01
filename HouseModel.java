@@ -5,8 +5,10 @@ import jason.environment.grid.Area;
 import jason.environment.grid.Location;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 //import jason.asSyntax.*;
 /**
@@ -40,6 +42,8 @@ public class HouseModel extends GridWorldModel {
     boolean carryingBeer = false; 	// whether the robot is carrying beer
     int sipCount = 0; 		// how many sip the owner did
     int availableBeers = 2; 		// how many beers are available
+
+    private static final List<String> restPlaces = List.of("chair1", "chair2", "chair3", "chair4", "sofa");
 
     // Initialization of the objects Location on the domotic home scene 
     Location lSofa = new Location(GSize / 2, GSize - 2);
@@ -481,5 +485,10 @@ public class HouseModel extends GridWorldModel {
         } else {
             return false;
         }
+    }
+
+    public String getRandomRest() {
+        Random rand = new Random();
+        return restPlaces.get(rand.nextInt(restPlaces.size()));
     }
 }

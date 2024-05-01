@@ -8,8 +8,10 @@
 medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every 4 hours
 
 // initial goal: get medication
+// initial goal: get medication
 +!start <-
-	{!get(Medication) ||| !check_bored}.//; !start. 
+   //{!check_bored}.
+	{  !get(Medication) ||| !check_bored}.//; !start. 
 	    
 +!setupTool(Name, Id)
 	<- 	makeArtifact("GUI","gui.Console",[],GUI);
@@ -35,10 +37,16 @@ medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every
       !take(medication(M, Q, _)).
 
 +!check_bored : true
-   <- .random(X); .wait(X*5000+2000);   // i get bored at random times
-      .send(robot, askOne, time(_), R); // when bored, I ask the robot about the time
+   <- .random(X); .wait(X*2000 + 10000);// i get bored at random times
+      !go_at(owner, random_place);
+      //.send(robot, askOne, time(_), R); // when bored, I ask the robot about the time
       .print(R);
       !start.//!check_bored.
+
++!go_at(owner,P) : at(owner,P) <- true.
++!go_at(owner,P) : not at(owner,P)
+  <- move_towards(P);
+     !go_at(owner,P).
 
 +msg(M)[source(Ag)] : true
    <- .print("Message from ",Ag,": ",M);
