@@ -8,8 +8,6 @@ import jason.environment.grid.Location;
 import jason.stdlib.string;
 import jason.stdlib.structure;
 
-
-
 import java.util.logging.Logger;
 import java.io.StringReader;
 import java.util.Set;
@@ -212,11 +210,14 @@ public class HouseEnv extends Environment {
         // add beer "status" the percepts
         if (model.fridgeOpen) {
             addPercept("robot", Literal.parseLiteral("stock(beer," + model.availableBeers + ")"));
-			
-			Set<String> keys = model.medications.keySet();
-			for (String key : keys) {
-				addPercept("robot", Literal.parseLiteral("stock(" + key + "," + model.medications.get(key) + ")"));
-			}
+
+        }
+        if (model.medicationOpen) {
+
+            Set<String> keys = model.medications.keySet();
+            for (String key : keys) {
+                addPercept("robot", Literal.parseLiteral("stock(" + key + "," + model.medications.get(key) + ")"));
+            }
 
         }
         if (model.sipCount > 0) {
@@ -286,7 +287,7 @@ public class HouseEnv extends Environment {
             Location dest = null;
             if (l.equals("random_place")) {
                 l = model.getRandomRest();
-                System.out.println("random_place: " + l); 
+                System.out.println("random_place: " + l);
             }
             switch (l) {
                 case "fridge":
@@ -378,8 +379,8 @@ public class HouseEnv extends Environment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        //get medicine    
-        }else if (action.getFunctor().equals("get") && action.getArity() == 1) {
+            //get medicine    
+        } else if (action.getFunctor().equals("get") && action.getArity() == 1) {
             Term medicine = action.getTerm(0);
             if (medicine.isStructure()) {
                 Structure medication = (Structure) medicine;
@@ -387,16 +388,16 @@ public class HouseEnv extends Environment {
                     String name = medication.getTerm(0).toString();
                     Integer amount = Integer.parseInt(medication.getTerm(1).toString());
                     Integer frec = Integer.parseInt(medication.getTerm(0).toString());
-                    result = model.getMedication(name);    
+                    result = model.getMedication(name);
                 }
-            }else{
-                result = model.getMedication(medicine.toString()); 
+            } else {
+                result = model.getMedication(medicine.toString());
             }
-        //hand_in medicine
-        }else if (action.getFunctor().equals("hand_in") && isMedicine(action.getTerm(0))) {
+            //hand_in medicine
+        } else if (action.getFunctor().equals("hand_in") && isMedicine(action.getTerm(0))) {
             result = model.handInMedication();
-        //takin medicine
-        }else if (action.getFunctor().equals("taking")) {
+            //takin medicine
+        } else if (action.getFunctor().equals("taking")) {
             //result = model.sipMedication();
             try {
                 if (ag.equals("robot")) {
@@ -412,7 +413,7 @@ public class HouseEnv extends Environment {
         } else if (action.getFunctor().equals("deliver")) {
             // wait 4 seconds to finish "deliver"
             try {
-                result = model.addMedication(action.getTerm(0).toString(),(int) ((NumberTerm) action.getTerm(1)).solve());
+                result = model.addMedication(action.getTerm(0).toString(), (int) ((NumberTerm) action.getTerm(1)).solve());
                 Thread.sleep(4000);
             } catch (Exception e) {
                 logger.info("Failed to execute action deliver!" + e);
