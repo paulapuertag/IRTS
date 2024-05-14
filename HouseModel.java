@@ -92,7 +92,7 @@ public class HouseModel extends GridWorldModel {
         medications.put("adderall", 2);
         medications.put("omeprazol", 2);
         medications.put("omoxicillin", 2);
-        medications.put("ibuprofen", 2);
+        medications.put("ibuprofen", 5);
     }
 
     private void initRooms() {
@@ -401,9 +401,9 @@ public class HouseModel extends GridWorldModel {
         Integer availability = getMedicationAvailable(medication);
         if (availability != -1) {
             if (medicationOpen && availability > 0 && !carryingMedications) {
-                System.out.println("UNITS OF " + medication + "  AVAILBALE BEFORE GETTING: " + availability);
-                medications.put(medication, availability--);
+                medications.put(medication, --availability);
                 carryingMedications = true;
+                System.out.println("taken one unit of __" + medication + "__ current avalability: " + getMedicationAvailable(medication));
                 return true;
             } else {
                 if (medicationOpen) {

@@ -14,14 +14,14 @@ too_much(M) :- // M is variable, if a name starts with capital letter, it's cons
    .time(HH,MIN,SS) &
    .count(consumed(YY,MM,DD,HH,_,_,M),QtdM) &
    limit(M,Limit,_) &
-   QtdM > Limit.
+   QtdM >= Limit.
    
 too_soon(M) :- 
    .date(YY,MM,DD) &	
    .time(HH,MIN,SS) &
    consumed(YY,MM,DD,TakenHour,_,_,M) &
    limit(M,Limit,F) &
-   TakenHour > (HH-F).
+   TakenHour >= (HH-F).
 
 // Prolog-like rule
 owner_liar(Qtd,Qi,Qf) :-
@@ -51,12 +51,14 @@ owner_liar(Qtd,Qi,Qf) :-
 	!movingHome(robot);
 	!update(M);   
 	.wait(300);
-	!bring(owner, M).
+	!bring(owner, medication(M,Q,F)).
 
 //comento esto para probar solo con limite de cantidad
 //+!bring(owner, M) : (too_much(M) | too_soon(M)) & limit(M,Q,F) 
-+!bring(owner, M) : too_much(M) & limit(M,Q,F) // (Think is done) Change the formula to adjust with periodicity
-   <- .concat("The Department of Health does not allow me to give you more than ", Q,
++!bring(owner, medication(M,Q,F)) : too_much(M) & limit(M,Q,F) // (Think is done) Change the formula to adjust with periodicity
+   <-
+   .println("STOP TO much medication ",M);
+   .concat("The Department of Health does not allow me to give you more than ", Q,
               " units of ", M, " every " , F , " hours! I am very sorry about that!", Msg);
 	!go_at(robot,washer);//!go_at(robot, sofa);
    .send(owner, tell, msg(Msg));
@@ -64,7 +66,7 @@ owner_liar(Qtd,Qi,Qf) :-
 	.abolish(consumed(_,_,_,_,_,_,_));     
 	.send(owner,tell,msg("It is a new day, you could take drugs again."));  
 	.println("Is is a new day, owner could take drugs again."); 
-   !bring(owner, M).
+   !bring(owner, medication(M,Q,F)).
 
 -!bring(_, _)
    :  true // Adapt it accordingly with previously updated predicates

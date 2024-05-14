@@ -19,10 +19,6 @@ public class HouseEnv extends Environment {
     public static final Literal clm = Literal.parseLiteral("close(medicalkit)");
     public static final Literal of = Literal.parseLiteral("open(fridge)");
     public static final Literal clf = Literal.parseLiteral("close(fridge)");
-    public static final Literal gb = Literal.parseLiteral("get(beer)");
-    public static final Literal hb = Literal.parseLiteral("hand_in(beer)");
-    public static final Literal sb = Literal.parseLiteral("sip(beer)");
-    public static final Literal hob = Literal.parseLiteral("has(owner,beer)");
 
     public static final Literal gm = Literal.parseLiteral("get(medication)");
     public static final Literal hm = Literal.parseLiteral("hand_in(medication)");
@@ -220,10 +216,6 @@ public class HouseEnv extends Environment {
             }
 
         }
-        if (model.sipCount > 0) {
-            addPercept("robot", hob);
-            addPercept("owner", hob);
-        }
         if (model.doseCount > 0) {
             addPercept("robot", hom);
             addPercept("owner", hom);
@@ -361,26 +353,7 @@ public class HouseEnv extends Environment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-        } else if (action.equals(gb)) {
-            result = model.getBeer();
-
-        } else if (action.equals(hb)) {
-            result = model.handInBeer();
-
-        } else if (action.equals(sb)) {
-            //result = model.sipBeer();
-            try {
-                if (ag.equals("robot")) {
-                    System.out.println("[robot] is trying to sip, but it is not allowed to do it.");
-                } else {
-                    //System.out.println("[owner] is sitting");
-                    result = model.sipBeer();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            //get medicine    
+        //get medicine    
         } else if (action.getFunctor().equals("get") && action.getArity() == 1) {
             Term medicine = action.getTerm(0);
             String name = "";
