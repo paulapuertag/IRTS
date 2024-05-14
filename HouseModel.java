@@ -255,7 +255,7 @@ public class HouseModel extends GridWorldModel {
 
     boolean sit(int Ag, Location dest) {
         Location loc = getAgPos(Ag);
-        if (loc.isNeigbour(dest) && Ag!= ROBOT) {
+        if (loc.isNeigbour(dest) && Ag != ROBOT) {
             setAgPos(Ag, dest);
         };
         return true;
@@ -355,7 +355,7 @@ public class HouseModel extends GridWorldModel {
                 r1.x--;
             } else if (r1.y < dest.y && canMoveTo(Ag, r1.x, r1.y + 1)) {
                 r1.y++;
-            } else if (r1.y > dest.y &&  canMoveTo(Ag, r1.x, r1.y - 1)) {
+            } else if (r1.y > dest.y && canMoveTo(Ag, r1.x, r1.y - 1)) {
                 r1.y--;
             };
 
@@ -401,6 +401,7 @@ public class HouseModel extends GridWorldModel {
         Integer availability = getMedicationAvailable(medication);
         if (availability != -1) {
             if (medicationOpen && availability > 0 && !carryingMedications) {
+                System.out.println("UNITS OF " + medication + "  AVAILBALE BEFORE GETTING: " + availability);
                 medications.put(medication, availability--);
                 carryingMedications = true;
                 return true;
@@ -458,7 +459,7 @@ public class HouseModel extends GridWorldModel {
 
     boolean handInMedication() {
         if (carryingMedications) {
-			
+
             doseCount = 10;
             carryingMedications = false;
             //if (view != null)

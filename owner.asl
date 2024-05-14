@@ -6,7 +6,7 @@
 
 // Beliefs about medication
 medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every 4 hours
-
+medication(naproxen, 1, 8).
 
 // initial goal: get medication
 +!start <-

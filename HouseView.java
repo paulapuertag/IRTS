@@ -16,10 +16,7 @@ import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener; 
  */
-
-
 //import java.util.logging.Logger;
-
 /**
  * class that implements the View of Domestic Robot application
  */
@@ -241,9 +238,12 @@ public class HouseView extends GridWorldView {
                 drawMan(g, x, y, "walkr");
             };
             if (lRobot.isNeigbour(lOwner)) {
-                String o = "S";
-                if (hmodel.sipCount > 0) {
+                String o = "D";
+                /* if (hmodel.sipCount > 0) {
                     o += " (" + hmodel.sipCount + ")";
+                } */
+                if (hmodel.doseCount > 0) {
+                    o += " (" + hmodel.doseCount + ")";
                 }
                 g.setColor(Color.yellow);
                 drawString(g, x, y, defaultFont, o);
@@ -418,12 +418,12 @@ public class HouseView extends GridWorldView {
         g.setColor(Color.cyan);
         g.drawRect(x * cellSizeW + 1, y * cellSizeH + 1, cellSizeW - 3, cellSizeH - 3);
     }
- /* 
+    /* 
     @Override
     public void actionPerformed(ActionEvent e) {
         // called every 100 milliseconds by the timer
         // you can add any additional logic here if needed
 		update();
     }
-  */  
+     */
 }
