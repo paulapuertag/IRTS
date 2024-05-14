@@ -353,7 +353,10 @@ public class HouseEnv extends Environment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        //get medicine    
+            //owner asks to deliver all his medicines
+            //} else if(action.getFunctor().equals("ask_medications")){
+
+            //get medicine 
         } else if (action.getFunctor().equals("get") && action.getArity() == 1) {
             Term medicine = action.getTerm(0);
             String name = "";
@@ -374,7 +377,7 @@ public class HouseEnv extends Environment {
         } else if (action.getFunctor().equals("hand_in")) {
             result = model.handInMedication();
             //takin medicine
-        }else if (action.getFunctor().equals("sip") && action.getArity() == 1) {
+        } else if (action.getFunctor().equals("sip") && action.getArity() == 1) {
             //result = model.sipMedication();
             try {
                 if (ag.equals("robot")) {

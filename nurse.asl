@@ -2,6 +2,7 @@
 
 // initially, I believe that there is some medication in the medical kit
 available(ibuprofen, medicalkit).
+available(naproxen, medicalkit).
 
 // my owner should not consume more than the limit a day 
 // TODO: should be informed by the owner at the beginning
@@ -57,7 +58,6 @@ owner_liar(Qtd,Qi,Qf) :-
 //+!bring(owner, M) : (too_much(M) | too_soon(M)) & limit(M,Q,F) 
 +!bring(owner, medication(M,Q,F)) : too_much(M) & limit(M,Q,F) // (Think is done) Change the formula to adjust with periodicity
    <-
-   .println("STOP TO much medication ",M);
    .concat("The Department of Health does not allow me to give you more than ", Q,
               " units of ", M, " every " , F , " hours! I am very sorry about that!", Msg);
 	!go_at(robot,washer);//!go_at(robot, sofa);

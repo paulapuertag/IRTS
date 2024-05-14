@@ -11,7 +11,8 @@ medication(naproxen, 1, 8).
 // initial goal: get medication
 +!start <-
    //{!check_bored}.
-	{ !get(medication(ibuprofen, 1, 4)) ||| !check_bored}.//; !start. 
+	//{ !get(medication(ibuprofen, 1, 4)) ||| !check_bored}.//; !start. 
+   { !ask_medications ||| !check_bored}.
 	    
 +!setupTool(Name, Id)
 	<- 	makeArtifact("GUI","gui.Console",[],GUI);
@@ -22,6 +23,9 @@ medication(naproxen, 1, 8).
 // here Medication is the three param fact medication(ibuprofen, 1, 4)
 +!get(Medication) : true
    <- .send(robot, achieve, bring(owner,Medication)).
+
++!ask_medications : medication(M, Q, F)
+   <- .send(robot, achieve, bring(owner,medication(M, Q, F))).
 
 +has(owner,M) : true
    <- !take(M).
