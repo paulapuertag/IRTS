@@ -357,10 +357,10 @@ public class HouseEnv extends Environment {
             //} else if(action.getFunctor().equals("ask_medications")){
 
             //get medicine 
-        } else if (action.getFunctor().equals("get") && action.getArity() == 1) {
+        } else if (action.getFunctor().equals("get") && action.getArity() == 2) {
             Term medicine = action.getTerm(0);
             String name = "";
-            if (medicine.isStructure()) {
+            /* if (medicine.isStructure()) {
                 Structure medication = (Structure) medicine;
                 if (medication.getFunctor().equals("medicine") && medication.getArity() == 2) {
                     name = medication.getTerm(0).toString();
@@ -368,14 +368,22 @@ public class HouseEnv extends Environment {
                     Integer frec = Integer.parseInt(medication.getTerm(0).toString());
                     result = model.getMedication(name);
                 }
-            } else {
-                name = medicine.toString();
-            }
+            } else { */
+            name = medicine.toString();
+            //}
             System.out.println("getting medicine: " + name);
-            result = model.getMedication(name);
+            try {
+                result = model.getMedication(name, (int) ((NumberTerm) action.getTerm(1)).solve());
+            } catch (Exception e) {
+                logger.info("Failed to execute action get!" + e);
+            }
             //hand_in medicine
-        } else if (action.getFunctor().equals("hand_in")) {
-            result = model.handInMedication();
+        } else if (action.getFunctor().equals("hand_in") && action.getArity() == 2) {
+            try {
+                result = model.handInMedication((int) ((NumberTerm) action.getTerm(1)).solve());
+            } catch (Exception e) {
+                logger.info("Failed to execute action hand_in!" + e);
+            }
             //takin medicine
         } else if (action.getFunctor().equals("sip") && action.getArity() == 1) {
             //result = model.sipMedication();

@@ -33,13 +33,13 @@ owner_liar(Qtd,Qi,Qf) :-
 
 +!bring(owner, medication(M,Q,F))
  :  available(M, medicalkit) & not too_much(M) //& not too_soon(M) //green shows a believe
-   <- .println("BRINGING OWNER MEDICATION ",M); 
+   <- .println("BRINGING OWNER ",Q," UNITS OF MEDICATION ",M); 
       !go_at(robot, medicalkit);
       open(medicalkit);	// orange shows that something is requested to be changed in environment
-      get(M);
+      get(M,Q);
       close(medicalkit);
       !go_at(robot, owner);
-      hand_in(M);
+      hand_in(M,Q);
       ?has(owner, M);
       // remember that another unit of medication has been consumed
       .date(YY, MM, DD); .time(HH, NN, SS);
