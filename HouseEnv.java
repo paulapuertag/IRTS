@@ -380,7 +380,7 @@ public class HouseEnv extends Environment {
             //hand_in medicine
         } else if (action.getFunctor().equals("hand_in") && action.getArity() == 2) {
             try {
-                result = model.handInMedication((int) ((NumberTerm) action.getTerm(1)).solve());
+                result = model.handInMedication(action.getTerm(0).toString(), (int) ((NumberTerm) action.getTerm(1)).solve());
             } catch (Exception e) {
                 logger.info("Failed to execute action hand_in!" + e);
             }
@@ -392,6 +392,10 @@ public class HouseEnv extends Environment {
                     System.out.println("[robot] is trying to take the medication, but it is not allowed to do it.");
                 } else {
                     result = model.sipMedication();
+                    if (!result) {
+                        removePercept("owner", Literal.parseLiteral("has(owner," + model.handedMedication + ")"));
+                        model.handedMedication = "";
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

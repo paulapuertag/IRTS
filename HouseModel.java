@@ -36,6 +36,7 @@ public class HouseModel extends GridWorldModel {
 
     HashMap<String, Integer> medications = new HashMap<String, Integer>(); // map containing medications names next to their availability
     boolean carryingMedications = false; 	// whether the robot is carrying any medication
+    String handedMedication = "";
     int doseCount = 0;	// how many dose of medication the owner did (equivalent to sip in beer)
 
     boolean fridgeOpen = false; 	// whether the fridge is open                                   
@@ -92,7 +93,7 @@ public class HouseModel extends GridWorldModel {
         medications.put("adderall", 2);
         medications.put("omeprazol", 2);
         medications.put("omoxicillin", 2);
-        medications.put("ibuprofen", 5);
+        medications.put("ibuprofen", 1);
     }
 
     private void initRooms() {
@@ -457,9 +458,9 @@ public class HouseModel extends GridWorldModel {
         }
     }
 
-    boolean handInMedication(Integer dose) {
+    boolean handInMedication(String medication, Integer dose) {
         if (carryingMedications) {
-
+            handedMedication = medication;
             doseCount = dose;
             carryingMedications = false;
             //if (view != null)
@@ -484,6 +485,7 @@ public class HouseModel extends GridWorldModel {
     boolean sipMedication() {
         if (doseCount > 0) {
             doseCount--;
+            System.out.println("Owner is having a dose of medication " + handedMedication);
             //if (view != null)
             //view.update(lOwner.x,lOwner.y);
             return true;

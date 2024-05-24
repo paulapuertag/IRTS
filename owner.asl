@@ -1,18 +1,16 @@
 /* owner */
 /* Initial goals */
 
-!start. 
+//!start. 
 !setupTool("Owner", "Robot"). 
 
 // Beliefs about medication
-medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every 4 hours
-medication(naproxen, 1, 8).
+//medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every 4 hours
+//medication(naproxen, 1, 8).
 
 // initial goal: get medication
-+!start <-
-   //{!check_bored}.
-	//{ !get(medication(ibuprofen, 1, 4)) ||| !check_bored}.//; !start. 
-   { !ask_medications ||| !check_bored}.
+//+!start <-
+//   !check_bored.
 	    
 +!setupTool(Name, Id)
 	<- 	makeArtifact("GUI","gui.Console",[],GUI);
@@ -30,23 +28,25 @@ medication(naproxen, 1, 8).
 +has(owner,M) : true
    <- !take(M).
 -has(owner,M) : true
-   <- !start.//!get(medication).
+   <- true.//!start.//!get(medication).
 
 // if I have not medication finish, in other case while I have medication, take
 +!take(M) : not has(owner,M) // we change 'drink(beer)' for 'take(medication)'
    <- true.
    
-+!take(M) : has(owner,M) & medication(M, Q, F)
++!take(M) : has(owner,M) //& medication(M, Q, F)
    <- sip(M); // we change 'sip(beer);' for 'taking(M)'
       //.wait(F*3600*1000); // wait for F hours before taking the medication again
       !take(M).
 
 +!check_bored : true
-   <- .random(X); .wait(X*2000 + 10000);// i get bored at random times
+   <- .random(X); 
+      .print("this is owners random wait ", X*2000 + 10000);
+      .wait((X*2000 + 10000)*10);// i get bored at random times
       !go_at(owner, random_place);
       //.send(robot, askOne, time(_), R); // when bored, I ask the robot about the time
       .print(R);
-      !start.//!check_bored.
+      !start.
 	  
 +!warn_taken(Medication,Qtd) : medication(Medication, _, _)
    <- .send(robot, tell, check_taken(Medication,Qtd)).

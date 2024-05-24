@@ -1,13 +1,18 @@
-/* Initial beliefs and rules */
+/* Initial beliefs*/
 
 // initially, I believe that there is some medication in the medical kit
 available(ibuprofen, medicalkit).
-available(naproxen, medicalkit).
+//available(naproxen, medicalkit).
 
 // my owner should not consume more than the limit a day 
 // TODO: should be informed by the owner at the beginning
-limit(ibuprofen, 1, 4). // the owner should not take more than 5 units of ibuprofen every 8 hours
-limit(naproxen, 1, 8).
+limit(ibuprofen,1,4). // the owner should not take more than 5 units of ibuprofen every 8 hours
+//limit(naproxen, 1, 8).
+
+/* Goals */ 
+!start.
+
+/* Rules */
 
 // TODO: modificar para que tambien tome en cuenta la ultima vez que se tomo la medicina
 too_much(M) :- // M is variable, if a name starts with capital letter, it's considered a variable
@@ -30,6 +35,14 @@ owner_liar(Qtd,Qi,Qf) :-
 
 
 /* Plans */
+
+// main goal: bring medication to owner
++!start 
+ : limit(M,Q,F)
+  <-  .println("Starting my goals"); 
+      !bring(owner, medication(M,Q,F)).
+
+      
 
 +!bring(owner, medication(M,Q,F))
  :  available(M, medicalkit) & not too_much(M) //& not too_soon(M) //green shows a believe
