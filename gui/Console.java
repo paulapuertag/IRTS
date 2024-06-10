@@ -18,6 +18,8 @@ import java.awt.Insets;
 
 import cartago.*;
 import cartago.tools.*;
+import jason.asSyntax.Literal;
+import jason.asSyntax.Term;
 
 public class Console extends GUIArtifact { 
 	
@@ -47,11 +49,36 @@ public class Console extends GUIArtifact {
 		// I protect the use of operations by using INTERNAL OPERATIONS
 		// such operations could not be invoked from agents
 		
+		linkActionEventToOp(frame.getBotiquin().getSubmitButton(), "save");
 		linkActionEventToOp(frame.getButton(),"send");  // INTERNAL OPERATION send
 		linkKeyStrokeToOp(frame.getTextField(),"ENTER","send");
 		linkWindowClosingEventToOp(frame, "closed");    // INTERNAL OPERATION close 
 		linkMouseEventToOp(frame,"mouseDragged","mouseDraggedOp");
-	}                             
+	}     
+	
+	@INTERNAL_OPERATION void save(ActionEvent ev){
+
+		int n_medicines = frame.getNumMed();
+		MyBotiquin botiquin = frame.getBotiquin();
+		JCheckBox[] take = botiquin.getTake();
+		JTextField[] name = botiquin.getMedicines();
+		JTextField[] qtd = botiquin.getQtd();
+		JTextField[] period = botiquin.getPeriod();
+		JTextField[] caducity = botiquin.getCaducity();
+		signal("medUpdate", n_medicines);
+
+		for(int i = 0; i< n_medicines; i++ ){
+			if (take[i]. isSelected()) {
+				signal("say"," medication prescription");
+
+				signal("newMedication", 
+						Literal.parseLiteral(name[i].getText()), 
+						Integer.parseInt(qtd[i].getText()), 
+						Integer.parseInt(period[i].getText()), 
+						Literal.parseLiteral(caducity[i].getText()));
+			}
+		}
+	}
 
 	@INTERNAL_OPERATION void send(ActionEvent ev){
 		String texto = frame.getTextField().getText();

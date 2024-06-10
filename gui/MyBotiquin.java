@@ -8,11 +8,6 @@ import javax.swing.text.StyleContext;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.Color;
-import java.awt.Insets;
 
                                                                              
 public class MyBotiquin extends JInternalFrame {    // The First AId GUI Defined as a JInternalFrame  
@@ -21,9 +16,39 @@ public class MyBotiquin extends JInternalFrame {    // The First AId GUI Defined
     private JTextField[] pautaField;
     private JTextField[] fechaCaducidadField;
     private JCheckBox[] tomarCheckBox;
+
+    JButton submitButton;
+
 	//private String[] labels = {"Tomar","Medicina","Cantidad","Pauta","Caducidad"}
+    private int numMedicinas;
+    
+    public JButton getSubmitButton() {
+        return submitButton;
+    }
+
+    public JTextField[] getMedicines() {
+        return medicinaField;
+    }
+
+    public JTextField[] getQtd() {
+        return cantidadField;
+    }
+
+    public JTextField[] getPeriod() {
+        return pautaField;
+    }
+
+    public JTextField[] getCaducity() {
+        return fechaCaducidadField;
+    }
+
+    public JCheckBox[] getTake() {
+        return tomarCheckBox;
+    }
 
     public MyBotiquin(int numMedicinas) {
+
+        this.numMedicinas = numMedicinas;
         setTitle("Información del Botiquín");
         setSize(400, 200 + 40 * numMedicinas-1);
         //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -67,10 +92,14 @@ public class MyBotiquin extends JInternalFrame {    // The First AId GUI Defined
 		
         panel.add(new JSeparator());     
         
-		JButton submitButton = new JButton("Guardar");
+		this.submitButton = new JButton("Guardar");
         panel.add(submitButton);
 
         add(panel);
+    }
+
+    public int getNumMedicinas(){
+        return this.numMedicinas;
     }
 	
 }

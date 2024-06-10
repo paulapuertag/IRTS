@@ -141,8 +141,8 @@ public class HouseModel extends GridWorldModel {
         conect[5][8] = lDoorBed2;
         conect[8][5] = lDoorBed2;
         lDoorBath2 = new Location(GSize * 2 - 4, GSize / 2 + 1);
-        conect[4][3] = lDoorBed3;
-        conect[3][4] = lDoorBed3;
+        conect[4][3] = lDoorBath2;
+        conect[3][4] = lDoorBath2;
     }
 
     /*

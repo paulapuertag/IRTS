@@ -3,40 +3,41 @@
 
 //!start. 
 !setupTool("Owner", "Robot"). 
-
-// Beliefs about medication
-//medication(ibuprofen, 1, 4). // the owner should take 1 units of ibuprofen every 4 hours
-//medication(naproxen, 1, 8).
-
-// initial goal: get medication
-//+!start <-
-//   !check_bored.
 	    
 +!setupTool(Name, Id)
-	<- 	makeArtifact("GUI","gui.Console",[],GUI);
+	<- makeArtifact("GUI","gui.Console",[],GUI);
 		setBotMasterName(Name);
 		setBotName(Id);
 		focus(GUI). 
 
-// here Medication is the three param fact medication(ibuprofen, 1, 4)
-+!get(Medication) : true
-   <- .send(robot, achieve, bring(owner,Medication)).
+//receive a new medicine (signal) from gui console.java
++medUpdate(N) <-
+      .abolish(medication(_,_,_,_));
+      .broadcast(tell, deleteMedicineFacts);
+      if (not medication(N,Q,P,C)){
+         .println("I have deleted the medicines");
+      }else{
+         .println(" Medicine (remains):", medication(N,Q,P,C));
+      };
+      .wait(300).
 
-+!ask_medications : medication(M, Q, F)
-   <- .send(robot, achieve, bring(owner,medication(M, Q, F))).
++newMedication(N,Q,P,C): not medication(N,Q,P,C) <- 
+   .println("I have added the medicine: ", medication(N,Q,P,C));
+   .send(robot, tell, addMedication(N,Q,P,C));
+   +medication(N,Q,P,C).
+
 
 +has(owner,M) : true
    <- !take(M).
 -has(owner,M) : true
    <- true.//!start.//!get(medication).
 
-// if I have not medication finish, in other case while I have medication, take
+// if the owner does not have medication finish, in other case while I have medication, take
 +!take(M) : not has(owner,M) // we change 'drink(beer)' for 'take(medication)'
    <- true.
    
 +!take(M) : has(owner,M) //& medication(M, Q, F)
    <- sip(M); // we change 'sip(beer);' for 'taking(M)'
-      //.wait(F*3600*1000); // wait for F hours before taking the medication again
       !take(M).
 
 +!check_bored : true
@@ -59,3 +60,8 @@
 +msg(M)[source(Ag)] : true
    <- .print("Message from ",Ag,": ",M);
       -msg(M).
+
++say(M) : .concat("I receive the message ", M, Message) <- 
+      +newMessage(Something)[source(percept)];
+      .wait(100);
+      show(Message).

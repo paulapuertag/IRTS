@@ -6,3 +6,6 @@ bin/build.xml
 bin/build.xml
 /bin
 /bin/classes
+*.class
+bin/build.xml
+*.mas2j~

@@ -31,6 +31,10 @@ public class MyFrame extends JFrame {
 	
 	private MyBotiquin botiquin;
 	                                                    
+	public MyBotiquin getBotiquin() {
+		return botiquin;
+	}
+
 	public void appendToPane(JTextPane tp, String msg, Color c){
         StyleContext sc = StyleContext.getDefaultStyleContext();
         AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
@@ -125,6 +129,15 @@ public class MyFrame extends JFrame {
 	public void setTextArea(JTextPane pane){
 		textArea = pane;
 	}
-	
+
+	public int getNumMed() {
+		if (botiquin != null) {
+			return botiquin.getNumMedicinas();
+		} else {
+			return -1;
+		}	
+	}
+
+
 }
 

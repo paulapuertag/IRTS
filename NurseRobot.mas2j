@@ -14,6 +14,6 @@ MAS nurse_robot {
     environment: HouseEnv  //(gui) // use "nogui" as parameter to not show the GUI
     agents: robot nurse.asl;
             owner agentArchClass MixedAgentArch
-				  agentArchClass jaca.CAgentArch;
+				  agentArchClass jaca.CAgentArch;		
             //supermarket provider.asl;
 }
