@@ -57,6 +57,7 @@ public class HouseModel extends GridWorldModel {
     Location lWasher = new Location(GSize / 3, 0);
     Location lFridge = new Location(2, 0);
     Location lMedication = new Location(GSize * 2 - 5, GSize / 2 + 2);
+    Location lCharger = new Location(GSize * 2 - 5, GSize / 2 + 4);
     Location lTable = new Location(GSize / 2, GSize - 3);
     Location lBed2 = new Location(GSize + 2, 0);
     Location lBed3 = new Location(GSize * 2 - 3, 0);
@@ -170,6 +171,7 @@ public class HouseModel extends GridWorldModel {
         // initial location of fridge and owner
         add(FRIDGE, lFridge);
         add(MEDICINE, lMedication);
+        add(CHARGER, lCharger);
         add(WASHER, lWasher);
         add(DELIVER, lDeliver);
         add(SOFA, lSofa);

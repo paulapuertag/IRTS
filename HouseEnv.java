@@ -285,6 +285,9 @@ public class HouseEnv extends Environment {
                 case "fridge":
                     dest = model.lFridge;
                     break;
+                case "charger":
+                    dest = model.lCharger;
+                    break;
                 case "medicalkit":
                     dest = model.lMedication;
                     break;

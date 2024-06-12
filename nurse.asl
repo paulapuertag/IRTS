@@ -3,12 +3,15 @@
 // initially, I believe that there is some medication in the medical kit
 available(ibuprofen, medicalkit).
 available(naproxen, medicalkit).
+battery(100).
+critical_battery(5).
 
 /* Goals */ 
 
 !start.
 
 +!start : true <-
+    !use_battery;
     .wait(medication(N,Q,P,C));
     !bring(owner, medication(N,Q,P,C)).
 
@@ -41,6 +44,21 @@ too_soon(M) :-
 owner_liar(Qtd,Qi,Qf) :-
 	Qf > Qi-Qtd.
 
++!use_battery : battery(B) <-
+   //.wait(5*1000);//waits 5 minutes
+   -+battery(B-1);
+   !use_battery.
+
++battery(B) : critical_battery(C) & B<C <-
+   .print("Need to recharge my battery");
+   !go_at(robot, charger);
+   .print("Charging...");
+   .wait(2*1000);//takes 2 minutes to be charged
+   -+battery(100).
+
++battery(B) : true <-
+   .print("My battery is ", B,"%").
+
 +!bring(owner, medication(N,Q,P,C))
  :  available(N, medicalkit) & not too_much(N) //& not too_soon(M) //green shows a believe
    <- .println("BRINGING OWNER ",Q," UNITS OF MEDICATION ",N); 
@@ -53,7 +71,7 @@ owner_liar(Qtd,Qi,Qf) :-
       ?has(owner, N);
       // remember that another unit of medication has been consumed
       .date(YY, MM, DD); .time(HH, NN, SS);
-      +consumed(YY, MM, DD, HH, NN, SS, M).
+      +consumed(YY, MM, DD, HH, NN, SS, N).
       //.wait(F*3600); // wait for F hours(seconds) before bringing the medication again
       //+!bring(owner, M).
 
@@ -103,6 +121,7 @@ owner_liar(Qtd,Qi,Qf) :-
 +!go_at(robot,P) : at(robot,P) <- true.
 +!go_at(robot,P) : not at(robot,P)
   <- move_towards(P);
+     //!use_battery;
      !go_at(robot,P).
 
 // when the supermarket makes a delivery, try the 'has' goal again

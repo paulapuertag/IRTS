@@ -191,6 +191,12 @@ public class HouseView extends GridWorldView {
                 }
                 //drawString(g, x, y, defaultFont, "Fr ("+hmodel.availableBeers+")");
                 break;
+
+            case HouseModel.CHARGER:
+                g.setColor(Color.lightGray);
+                objPath = "doc/charger.jpg";
+                drawScaledImageMd(g, x, y, objPath, 80, 80);
+                break;
         }
         repaint();
     }
