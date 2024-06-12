@@ -17,10 +17,14 @@ critical_battery(5).
 /*Medicine fact Updates from owner*/
 
 +deleteMedicineFacts : true <- 
-   .abolish(medication(_,_,_,_)).
+   .abolish(medication(_,_,_,_));
+   .abolish(minutes_to_serve(_,_)).
 
 +addMedication(N,Q,P,C) : not medication(N,Q,P,C) <-
-   +medication(N,Q,P,C).
+   .count(medication(_,_,_,_),Nmed);
+   +medication(N,Q,P,C);
+   .print("Medication ",N," to be served at ",Nmed," minutes");
+   +minutes_to_serve(N,Nmed).
 
 /* Rules */
 
@@ -32,13 +36,17 @@ too_much(N) :- // N is variable, if a name starts with capital letter, it's cons
    medication(N,Q,P,C) &
    QtdM >= Q.
    
-too_soon(M) :- 
+too_soon(N) :- 
    .date(YY,MM,DD) &	
    .time(HH,MIN,SS) &
-   consumed(YY,MM,DD,TakenHour,_,_,M) & 
+   consumed(YY,MM,DD,TakenHour,_,_,N) & 
    medication(N,Q,P,C) &
    TakenHour >= (HH-P).
-   
+
+on_time(N) :-
+   minutes_to_serve(N,MM) &
+   .time(_,MM,_).
+
 // Prolog-like rule
 owner_liar(Qtd,Qi,Qf) :-
 	Qf > Qi-Qtd.
@@ -66,8 +74,9 @@ low_battery :-
    .print("My battery is ", B,"%").
 
 /*nurse functionality */
+
 +!bring(owner, medication(N,Q,P,C))
- :  available(N, medicalkit) & not too_much(N) //& not too_soon(M) //green shows a believe
+ :  available(N, medicalkit) & not too_soon(N) & on_time(N)//& not too_much(N) //green shows a believe
    <- .println("BRINGING OWNER ",Q," UNITS OF MEDICATION ",N); 
       !go_at(robot, medicalkit);
       open(medicalkit);	// orange shows that something is requested to be changed in environment
@@ -90,17 +99,20 @@ low_battery :-
 
 //comento esto para probar solo con limite de cantidad
 //+!bring(owner, M) : (too_much(M) | too_soon(M)) & limit(M,Q,F) 
-+!bring(owner, medication(N,Q,P,C)) : too_much(N) & medication(N,Q,P,C) // (Think is done) Change the formula to adjust with periodicity
++!bring(owner, medication(N,Q,P,C)) : too_soon(N) & medication(N,Q,P,C) // (Think is done) Change the formula to adjust with periodicity
    <-
    .concat("The Department of Health does not allow me to give you more than ", Q,
-              " units of ", N, " every " , F , " hours! I am very sorry about that!", Msg);
+              " units of ", N, " every " , P , " hours! I am very sorry about that!", Msg);
 	!go_at(robot,washer);//!go_at(robot, sofa);
    .send(owner, tell, msg(Msg));
 	.wait(30000);
-	.abolish(consumed(_,_,_,_,_,_,_));     
-	.send(owner,tell,msg("It is a new day, you could take drugs again."));  
-	.println("Is is a new day, owner could take drugs again."); 
+	//.abolish(consumed(_,_,_,_,_,_,_));     
+	//.send(owner,tell,msg("It is a new day, you could take drugs again."));  
+	//.println("Is is a new day, owner could take drugs again."); 
    !bring(owner, medication(N,Q,P,C)).
+
++!bring(owner, medication(N,Q,P,C)) : not on_time(N) <-
+   .print("You need to wait a bit to take medication ",N).
 
 -!bring(_, _)
    :  true // Adapt it accordingly with previously updated predicates
@@ -137,6 +149,7 @@ low_battery :-
      !go_at(robot,P).
 
 // when the supermarket makes a delivery, try the 'has' goal again
+/*
 +delivered(M, _Qtd, _OrderId)[source(supermarket)]
   : true <- 
    !go_at(robot, delivery);
@@ -145,6 +158,7 @@ low_battery :-
 	.wait(200);
 	+available(M, medicalkit);
 	!bring(owner, M).
+*/
 
 // when the medication is opened, the medication stock is perceived
 // and thus the available belief is updated
@@ -152,10 +166,9 @@ low_battery :-
    <- -available(M, medicalkit).
 +stock(M, N) :  N > 0 & not available(M, medicalkit) & at(robot,medicalkit)
    <- -+available(M, medicalkit). // generates again available event
-//*
 +stock(M,N) :  N > 0 & not available(M,medicalkit) & not at(robot,medicalkit)
    <- !go_at(robot,medicalkit).
-//*/ 
+
 +?time(T) : true
   <-  time.check(T). // Internal action implemented in JAVA => Folder.class(Params)
 
