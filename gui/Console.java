@@ -54,6 +54,7 @@ public class Console extends GUIArtifact {
 		linkKeyStrokeToOp(frame.getTextField(),"ENTER","send");
 		linkWindowClosingEventToOp(frame, "closed");    // INTERNAL OPERATION close 
 		linkMouseEventToOp(frame,"mouseDragged","mouseDraggedOp");
+
 	}     
 	
 	@INTERNAL_OPERATION void save(ActionEvent ev){
@@ -66,6 +67,13 @@ public class Console extends GUIArtifact {
 		JTextField[] period = botiquin.getPeriod();
 		JTextField[] caducity = botiquin.getCaducity();
 		signal("medUpdate", n_medicines);
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt(); 
+			e.printStackTrace();
+		}
 
 		for(int i = 0; i< n_medicines; i++ ){
 			if (take[i]. isSelected()) {

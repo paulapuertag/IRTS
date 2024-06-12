@@ -11,7 +11,6 @@ critical_battery(5).
 !start.
 
 +!start : true <-
-    !use_battery;
     .wait(medication(N,Q,P,C));
     !bring(owner, medication(N,Q,P,C)).
 
@@ -26,7 +25,7 @@ critical_battery(5).
 /* Rules */
 
 // TODO: modificar para que tambien tome en cuenta la ultima vez que se tomo la medicina
-too_much(N) :- // M is variable, if a name starts with capital letter, it's considered a variable
+too_much(N) :- // N is variable, if a name starts with capital letter, it's considered a variable
    .date(YY,MM,DD) &	 // can be used: &,|,not,~(extrict not)
    .time(HH,MIN,SS) &
    .count(consumed(YY,MM,DD,HH,_,_,N),QtdM) &
@@ -39,26 +38,34 @@ too_soon(M) :-
    consumed(YY,MM,DD,TakenHour,_,_,M) & 
    medication(N,Q,P,C) &
    TakenHour >= (HH-P).
-
+   
 // Prolog-like rule
 owner_liar(Qtd,Qi,Qf) :-
 	Qf > Qi-Qtd.
 
-+!use_battery : battery(B) <-
-   //.wait(5*1000);//waits 5 minutes
-   -+battery(B-1);
-   !use_battery.
+//** batery logic & charger logic**//
+low_battery :- 
+   battery(B) & critical_battery(C) & B<=C.
 
-+battery(B) : critical_battery(C) & B<C <-
++!use_battery : battery(B) & not low_battery <-
+   -+battery(B-1).
+
++!use_battery : battery(B) & low_battery <-
+   +going_to_charge;
+   !go_charge.
+
++!go_charge : low_battery <-
    .print("Need to recharge my battery");
    !go_at(robot, charger);
    .print("Charging...");
    .wait(2*1000);//takes 2 minutes to be charged
+   -going_to_charge;
    -+battery(100).
 
 +battery(B) : true <-
    .print("My battery is ", B,"%").
 
+/*nurse functionality */
 +!bring(owner, medication(N,Q,P,C))
  :  available(N, medicalkit) & not too_much(N) //& not too_soon(M) //green shows a believe
    <- .println("BRINGING OWNER ",Q," UNITS OF MEDICATION ",N); 
@@ -71,9 +78,8 @@ owner_liar(Qtd,Qi,Qf) :-
       ?has(owner, N);
       // remember that another unit of medication has been consumed
       .date(YY, MM, DD); .time(HH, NN, SS);
-      +consumed(YY, MM, DD, HH, NN, SS, N).
-      //.wait(F*3600); // wait for F hours(seconds) before bringing the medication again
-      //+!bring(owner, M).
+      +consumed(YY, MM, DD, HH, NN, SS, N);
+      !bring(owner, medication(N,Q,P,C)).
 
 +!bring(owner,medication(N,Q,P,C)) : not available(N,medicalkit) <- 
    .println("GETTING MORE MEDICATION ",N); 
@@ -118,16 +124,22 @@ owner_liar(Qtd,Qi,Qf) :-
 	//.abolish(stock(Something,_));
 	//+stock(Something,3).
 
+//** movement **//
 +!go_at(robot,P) : at(robot,P) <- true.
-+!go_at(robot,P) : not at(robot,P)
+
++!go_at(robot,P) : not at(robot,P) & going_to_charge
   <- move_towards(P);
-     //!use_battery;
+     !go_at(robot,P).
+
++!go_at(robot,P) : not at(robot,P) & not going_to_charge
+  <- move_towards(P);
+     !use_battery;
      !go_at(robot,P).
 
 // when the supermarket makes a delivery, try the 'has' goal again
 +delivered(M, _Qtd, _OrderId)[source(supermarket)]
-  :  true
-  <- !go_at(robot, delivery);
+  : true <- 
+   !go_at(robot, delivery);
   	.wait(200);
 	!go_at(robot, medicalkit);//medication here is the medical kit
 	.wait(200);

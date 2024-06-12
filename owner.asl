@@ -5,7 +5,7 @@
 !setupTool("Owner", "Robot"). 
 	    
 +!setupTool(Name, Id)
-	<- makeArtifact("GUI","gui.Console",[],GUI);
+	<- makeArtifact("GUI","gui.Console",[] , GUI);
 		setBotMasterName(Name);
 		setBotName(Id);
 		focus(GUI). 
@@ -18,8 +18,7 @@
          .println("I have deleted the medicines");
       }else{
          .println(" Medicine (remains):", medication(N,Q,P,C));
-      };
-      .wait(300).
+      }.
 
 +newMedication(N,Q,P,C): not medication(N,Q,P,C) <- 
    .println("I have added the medicine: ", medication(N,Q,P,C));
@@ -29,6 +28,7 @@
 
 +has(owner,M) : true
    <- !take(M).
+
 -has(owner,M) : true
    <- true.//!start.//!get(medication).
 
@@ -37,7 +37,7 @@
    <- true.
    
 +!take(M) : has(owner,M) //& medication(M, Q, F)
-   <- sip(M); // we change 'sip(beer);' for 'taking(M)'
+   <- sip(M);
       !take(M).
 
 +!check_bored : true

@@ -381,25 +381,6 @@ public class HouseModel extends GridWorldModel {
         return true;
     }
 
-    boolean getBeer() {
-        if (fridgeOpen && availableBeers > 0 && !carryingBeer) {
-            availableBeers--;
-            carryingBeer = true;
-            return true;
-        } else {
-            if (fridgeOpen) {
-                System.out.println("The fridge is opened. ");
-            };
-            if (availableBeers > 0) {
-                System.out.println("The fridge has Beers enough. ");
-            };
-            if (!carryingBeer) {
-                System.out.println("The robot is not bringing a Beer. ");
-            };
-            return false;
-        }
-    }
-
     boolean getMedication(String medication, Integer requiredQuantity) {
         Integer availability = getMedicationAvailable(medication);
         if (availability != -1) {
@@ -426,37 +407,15 @@ public class HouseModel extends GridWorldModel {
         }
     }
 
-    boolean addBeer(int n) {
-        availableBeers += n;
-        System.out.println("The robot increment the amount of beer........ ");
-        //if (view != null)
-        //    view.update(lFridge.x,lFridge.y);
-        return true;
-    }
-
     boolean addMedication(String medication, Integer n) {
         int medicationInitialQuantity = getMedicationAvailable(medication);
         if (medicationInitialQuantity != -1) {
             medications.put(medication, medicationInitialQuantity + n);
             System.out.println("The robot increment the amount of " + medication + ". Actual stock: " + medications.get(medication));
-            //if (view != null)
-            //    view.update(lMedication.x,lMedication.y);
             return true;
         } else {
             System.out.println("There's no medication with name '" + medication + "' available in the cabinet.");
             return true;
-        }
-    }
-
-    boolean handInBeer() {
-        if (carryingBeer) {
-            sipCount = 10;
-            carryingBeer = false;
-            //if (view != null)
-            //view.update(lOwner.x,lOwner.y);
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -465,17 +424,6 @@ public class HouseModel extends GridWorldModel {
             handedMedication = medication;
             doseCount = dose;
             carryingMedications = false;
-            //if (view != null)
-            //view.update(lOwner.x,lOwner.y);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    boolean sipBeer() {
-        if (sipCount > 0) {
-            sipCount--;
             //if (view != null)
             //view.update(lOwner.x,lOwner.y);
             return true;

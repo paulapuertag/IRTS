@@ -20,13 +20,13 @@ public class HouseEnv extends Environment {
     public static final Literal of = Literal.parseLiteral("open(fridge)");
     public static final Literal clf = Literal.parseLiteral("close(fridge)");
 
-    public static final Literal gm = Literal.parseLiteral("get(medication)");
     public static final Literal hm = Literal.parseLiteral("hand_in(medication)");
     public static final Literal sm = Literal.parseLiteral("taking(medication)");
     public static final Literal hom = Literal.parseLiteral("has(owner,Medication)");
 
     public static final Literal af = Literal.parseLiteral("at(robot,fridge)");
     public static final Literal am = Literal.parseLiteral("at(robot,medicalkit)");
+    public static final Literal ac = Literal.parseLiteral("at(robot,charger)");
     public static final Literal ao = Literal.parseLiteral("at(robot,owner)");
     public static final Literal ad = Literal.parseLiteral("at(robot,delivery)");
 
@@ -141,6 +141,10 @@ public class HouseEnv extends Environment {
 
         Location lRobot = model.getAgPos(0);
         Location lOwner = model.getAgPos(1);
+
+        if (lRobot.distanceChebyshev(model.lCharger) == 0) {
+            addPercept("robot", ac);
+        }
 
         if (lRobot.distanceChebyshev(model.lMedication) == 1) {
             addPercept("robot", am);
@@ -363,15 +367,7 @@ public class HouseEnv extends Environment {
         } else if (action.getFunctor().equals("get") && action.getArity() == 2) {
             Term medicine = action.getTerm(0);
             String name = "";
-            /* if (medicine.isStructure()) {
-                Structure medication = (Structure) medicine;
-                if (medication.getFunctor().equals("medicine") && medication.getArity() == 2) {
-                    name = medication.getTerm(0).toString();
-                    Integer amount = Integer.parseInt(medication.getTerm(1).toString());
-                    Integer frec = Integer.parseInt(medication.getTerm(0).toString());
-                    result = model.getMedication(name);
-                }
-            } else { */
+
             name = medicine.toString();
             //}
             System.out.println("getting medicine: " + name);
@@ -389,7 +385,6 @@ public class HouseEnv extends Environment {
             }
             //takin medicine
         } else if (action.getFunctor().equals("sip") && action.getArity() == 1) {
-            //result = model.sipMedication();
             try {
                 if (ag.equals("robot")) {
                     System.out.println("[robot] is trying to take the medication, but it is not allowed to do it.");
