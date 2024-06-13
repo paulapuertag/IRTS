@@ -1,6 +1,6 @@
 /* Initial beliefs*/
-medication(naproxen,1,2,C).
-medication(ibuprofen,1,4,C).
+medication(naproxen,1,3,C).
+medication(ibuprofen,1,1,C).
 
 // initially, I believe that there is some medication in the medical kit
 available(ibuprofen, medicalkit).
@@ -12,9 +12,19 @@ critical_battery(5).
 
 !start.
 
-+!start : true <-
-    .wait(medication(N,Q,P,C));
-    !bring(owner, medication(N,Q,P,C)).
++!start : not medication(_,_,_,_) <-
+   .print("Waiting for the medicine recipe");
+   .wait(2000);
+   !start.
+
++!start : not (medication(N,Q,P,C) & not too_soon(N)) <-
+   .print("Waiting for the medicines period");
+   .wait(2000);
+   !start.
+
++!start : medication(N,Q,P,C) & not too_soon(N)<-
+   !bring(owner, medication(N,Q,P,C));    // print all members of the list
+   !start.
 
 /*Medicine fact Updates from owner*/
 
@@ -24,13 +34,9 @@ critical_battery(5).
 
 +addMedication(N,Q,P,C) : not medication(N,Q,P,C) <-
    .count(medication(_,_,_,_),Nmed);
-   +medication(N,Q,P,C);
-   .print("Medication ",N," to be served at ",Nmed," minutes");
-   +minutes_to_serve(N,Nmed).
+   +medication(N,Q,P,C).
 
 /* Rules */
-
-// TODO: modificar para que tambien tome en cuenta la ultima vez que se tomo la medicina
 too_much(N) :- // N is variable, if a name starts with capital letter, it's considered a variable
    .date(YY,MM,DD) &	 // can be used: &,|,not,~(extrict not)
    .time(HH,MIN,SS) &
@@ -41,7 +47,7 @@ too_much(N) :- // N is variable, if a name starts with capital letter, it's cons
 too_soon(N) :- 
    .date(YY,MM,DD) &	
    .time(HH,MIN,SS) &
-   consumed(YY,MM,DD,TakenHour,TakenMin,_,M) & 
+   consumed(YY,MM,DD,TakenHour,TakenMin,_,N) & 
    medication(N,Q,P,C) &
    TakenMin+P > MIN.//TakenHour+P > HH.
    
@@ -73,7 +79,7 @@ low_battery :-
 
 /*nurse functionality */
 +!bring(owner, medication(N,Q,P,C))
- :  available(N, medicalkit) & not too_soon(N) //& not too_soon(M) //green shows a believe
+ :  available(N, medicalkit) & not too_soon(N) 
    <- .println("BRINGING OWNER ",Q," UNITS OF MEDICATION ",N); 
       !go_at(robot, medicalkit);
       open(medicalkit);	// orange shows that something is requested to be changed in environment
@@ -85,7 +91,8 @@ low_battery :-
       // remember that another unit of medication has been consumed
       .date(YY, MM, DD); .time(HH, NN, SS);
       +consumed(YY, MM, DD, HH, NN, SS, N);
-      !bring(owner, medication(N,Q,P,C)).
+      !start.
+      //!bring(owner, medication(N,Q,P,C)).
 
 +!bring(owner,medication(N,Q,P,C)) : not available(N,medicalkit) <- 
    .println("GETTING MORE MEDICATION ",N); 
@@ -95,13 +102,15 @@ low_battery :-
 	!bring(owner, medication(N,Q,P,C)).
 
 //comento esto para probar solo con limite de cantidad
-+!bring(owner, medication(N,Q,P,C)) : too_soon(N) & medication(N,Q,P,C) // (Think is done) Change the formula to adjust with periodicity
++!bring(owner, medication(N,Q,P,C)) 
+   : too_soon(N) & medication(N,Q,P,C) // (Think is done) Change the formula to adjust with periodicity
    <-
    .concat("The Department of Health does not allow me to give you more than ", Q,
               " units of ", N, " every " , P , " hours! I am very sorry about that!", Msg);
-	!go_at(robot,washer);//!go_at(robot, sofa);
+	!go_at(robot,washer);
    .send(owner, tell, msg(Msg));
-   !bring(owner, medication(N,Q,P,C)).
+   //!bring(owner, medication(N,Q,P,C)).
+   !start.
 
 -!bring(_, _)
    :  true // Adapt it accordingly with previously updated predicates
