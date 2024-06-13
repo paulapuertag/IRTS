@@ -3,7 +3,6 @@
 medication(naproxen,1,2,C).
 medication(ibuprofen,1,4,C).
 
-//!start. 
 !setupTool("Owner", "Robot"). 
 	    
 +!setupTool(Name, Id)
@@ -32,13 +31,13 @@ medication(ibuprofen,1,4,C).
    <- !take(M).
 
 -has(owner,M) : true
-   <- true.//!start.//!get(medication).
+   <- true.//!start.
 
 // if the owner does not have medication finish, in other case while I have medication, take
 +!take(M) : not has(owner,M) // we change 'drink(beer)' for 'take(medication)'
    <- true.
    
-+!take(M) : has(owner,M) //& medication(M, Q, F)
++!take(M) : has(owner,M) 
    <- sip(M);
       !take(M).
 

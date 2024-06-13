@@ -95,17 +95,12 @@ low_battery :-
 	!bring(owner, medication(N,Q,P,C)).
 
 //comento esto para probar solo con limite de cantidad
-//+!bring(owner, M) : (too_much(M) | too_soon(M)) & limit(M,Q,F) 
 +!bring(owner, medication(N,Q,P,C)) : too_soon(N) & medication(N,Q,P,C) // (Think is done) Change the formula to adjust with periodicity
    <-
    .concat("The Department of Health does not allow me to give you more than ", Q,
               " units of ", N, " every " , P , " hours! I am very sorry about that!", Msg);
 	!go_at(robot,washer);//!go_at(robot, sofa);
    .send(owner, tell, msg(Msg));
-	//.wait(30000);
-	//.abolish(consumed(_,_,_,_,_,_,_));     
-	//.send(owner,tell,msg("It is a new day, you could take drugs again."));  
-	//.println("Is is a new day, owner could take drugs again."); 
    !bring(owner, medication(N,Q,P,C)).
 
 -!bring(_, _)
@@ -127,8 +122,7 @@ low_battery :-
 	deliver(M,3);
 	+available(M,medicalkit);
 	!go_at(robot,medicalkit).
-	//.abolish(stock(Something,_));
-	//+stock(Something,3).
+
 
 //** movement **//
 +!go_at(robot,P) : at(robot,P) <- true.
