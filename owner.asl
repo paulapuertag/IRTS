@@ -1,5 +1,7 @@
 /* owner */
 /* Initial goals */
+medication(naproxen,1,2,C).
+medication(ibuprofen,1,4,C).
 
 //!start. 
 !setupTool("Owner", "Robot"). 

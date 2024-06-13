@@ -90,11 +90,11 @@ public class HouseModel extends GridWorldModel {
 
     //available medications
     private void initMedications() {
-        medications.put("naproxen", 2);
+        medications.put("naproxen", 20);
         medications.put("adderall", 2);
         medications.put("omeprazol", 2);
         medications.put("omoxicillin", 2);
-        medications.put("ibuprofen", 1);
+        medications.put("ibuprofen", 10);
     }
 
     private void initRooms() {

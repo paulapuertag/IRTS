@@ -1,4 +1,6 @@
 /* Initial beliefs*/
+medication(naproxen,1,2,C).
+medication(ibuprofen,1,4,C).
 
 // initially, I believe that there is some medication in the medical kit
 available(ibuprofen, medicalkit).
@@ -39,14 +41,10 @@ too_much(N) :- // N is variable, if a name starts with capital letter, it's cons
 too_soon(N) :- 
    .date(YY,MM,DD) &	
    .time(HH,MIN,SS) &
-   consumed(YY,MM,DD,TakenHour,_,_,N) & 
+   consumed(YY,MM,DD,TakenHour,TakenMin,_,M) & 
    medication(N,Q,P,C) &
-   TakenHour >= (HH-P).
-
-on_time(N) :-
-   minutes_to_serve(N,MM) &
-   .time(_,MM,_).
-
+   TakenMin+P > MIN.//TakenHour+P > HH.
+   
 // Prolog-like rule
 owner_liar(Qtd,Qi,Qf) :-
 	Qf > Qi-Qtd.
@@ -74,9 +72,8 @@ low_battery :-
    .print("My battery is ", B,"%").
 
 /*nurse functionality */
-
 +!bring(owner, medication(N,Q,P,C))
- :  available(N, medicalkit) & not too_soon(N) & on_time(N)//& not too_much(N) //green shows a believe
+ :  available(N, medicalkit) & not too_soon(N) //& not too_soon(M) //green shows a believe
    <- .println("BRINGING OWNER ",Q," UNITS OF MEDICATION ",N); 
       !go_at(robot, medicalkit);
       open(medicalkit);	// orange shows that something is requested to be changed in environment
@@ -105,14 +102,11 @@ low_battery :-
               " units of ", N, " every " , P , " hours! I am very sorry about that!", Msg);
 	!go_at(robot,washer);//!go_at(robot, sofa);
    .send(owner, tell, msg(Msg));
-	.wait(30000);
+	//.wait(30000);
 	//.abolish(consumed(_,_,_,_,_,_,_));     
 	//.send(owner,tell,msg("It is a new day, you could take drugs again."));  
 	//.println("Is is a new day, owner could take drugs again."); 
    !bring(owner, medication(N,Q,P,C)).
-
-+!bring(owner, medication(N,Q,P,C)) : not on_time(N) <-
-   .print("You need to wait a bit to take medication ",N).
 
 -!bring(_, _)
    :  true // Adapt it accordingly with previously updated predicates
