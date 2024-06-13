@@ -210,15 +210,12 @@ public class HouseEnv extends Environment {
         // add beer "status" the percepts
         if (model.fridgeOpen) {
             addPercept("robot", Literal.parseLiteral("stock(beer," + model.availableBeers + ")"));
-
         }
         if (model.medicationOpen) {
-
             Set<String> keys = model.medications.keySet();
             for (String key : keys) {
                 addPercept("robot", Literal.parseLiteral("stock(" + key + "," + model.medications.get(key) + ")"));
             }
-
         }
         if (model.doseCount > 0) {
             addPercept("robot", hom);
@@ -360,9 +357,6 @@ public class HouseEnv extends Environment {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //owner asks to deliver all his medicines
-            //} else if(action.getFunctor().equals("ask_medications")){
-
             //get medicine 
         } else if (action.getFunctor().equals("get") && action.getArity() == 2) {
             Term medicine = action.getTerm(0);

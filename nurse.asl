@@ -3,14 +3,19 @@ medication(naproxen,1,3,C).
 medication(ibuprofen,1,1,C).
 
 // initially, I believe that there is some medication in the medical kit
-available(ibuprofen, medicalkit).
-available(naproxen, medicalkit).
+
 battery(100).
 critical_battery(5).
 
 /* Goals */ 
+!check_inventary.
 
-!start.
++!check_inventary <-
+   !go_at(robot,medicalkit);
+   open(medicalkit);
+   .wait(300);
+   close(medicalkit);
+   !start.
 
 +!start : not medication(_,_,_,_) <-
    .print("Waiting for the medicine recipe");
@@ -162,7 +167,7 @@ low_battery :-
 +stock(M, 0) :  available(M, medicalkit)
    <- -available(M, medicalkit).
 +stock(M, N) :  N > 0 & not available(M, medicalkit) & at(robot,medicalkit)
-   <- -+available(M, medicalkit). // generates again available event
+   <- +available(M, medicalkit). // generates again available event
 +stock(M,N) :  N > 0 & not available(M,medicalkit) & not at(robot,medicalkit)
    <- !go_at(robot,medicalkit).
 

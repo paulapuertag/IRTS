@@ -395,6 +395,8 @@ public class HouseModel extends GridWorldModel {
                 };
                 if (availability > requiredQuantity) {
                     System.out.println("Medicine cabinet has enough of that medication. ");
+                }else if (availability < requiredQuantity) {
+                    System.out.println("Medicine cabinet dont has enough of that medication. ");
                 };
                 if (!carryingMedications) {
                     System.out.println("The robot is not bringing the medication. ");
