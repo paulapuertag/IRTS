@@ -1,6 +1,6 @@
 /* Initial beliefs*/
-medication(naproxen,1,3,C).
-medication(ibuprofen,1,1,C).
+medication(naproxen,1,30,C).
+medication(ibuprofen,1,20,C).
 
 // initially, I believe that there is some medication in the medical kit
 
@@ -28,6 +28,7 @@ critical_battery(5).
    !start.
 
 +!start : not (medication(N,Q,P,C) & not too_soon(N)) <-
+   !go_at(robot,washer);
    .print("Waiting for the medicines period");
    .wait(2000);
    !start.
@@ -66,10 +67,7 @@ too_soon(N) :-
    consumed(YY,MM,DD,TakenHour,TakenMin,_,N) & 
    medication(N,Q,P,C) &
    TakenMin+P > MIN.//TakenHour+P > HH.
-   
-// Prolog-like rule
-owner_liar(Qtd,Qi,Qf) :-
-	Qf > Qi-Qtd.
+
 
 //** batery logic & charger logic**//
 low_battery :- 
@@ -86,7 +84,7 @@ low_battery :-
    .print("Need to recharge my battery");
    !go_at(robot, charger);
    .print("Charging...");
-   .wait(2*1000);//takes 2 minutes to be charged
+   .wait(5000);//takes 5 seconds to be charged
    -going_to_charge;
    -+battery(100).
 
@@ -103,12 +101,10 @@ low_battery :-
       close(medicalkit);
       !go_at(robot, owner);
       hand_in(N,Q);
-      ?has(owner, N);
       // remember that another unit of medication has been consumed
       .date(YY, MM, DD); .time(HH, NN, SS);
       +consumed(YY, MM, DD, HH, NN, SS, N);
       !start.
-      //!bring(owner, medication(N,Q,P,C)).
 
 +!bring(owner,medication(N,Q,P,C)) : not available(N,medicalkit) <- 
    .println("GETTING MORE MEDICATION ",N); 
@@ -125,7 +121,6 @@ low_battery :-
               " units of ", N, " every " , P , " hours! I am very sorry about that!", Msg);
 	!go_at(robot,washer);
    .send(owner, tell, msg(Msg));
-   //!bring(owner, medication(N,Q,P,C)).
    !start.
 
 -!bring(_, _)
@@ -185,20 +180,8 @@ low_battery :-
 +?time(T) : true
   <-  time.check(T). // Internal action implemented in JAVA => Folder.class(Params)
 
-+check_taken(Medication,Qtd)[source(owner)] : true
-<- !go_at(robot, medication);
-	?stock(Medication,Qi);
-	open(medication);
-   close(medication);
-	?stock(Medication,Qf);
-	!inform_owner(Medication,Qtd,Qi,Qf).
-	
-+!inform_owner(Medication,Qtd,Qi,Qf) : not owner_liar(Qtd,Qi,Qf)
-<- 	.concat("I am registering that you took ", Qtd, " units of medication ", Medication, Msg);
-	.send(owner,tell,msg(Msg));
++anotate_taken(N) : medication(N,Q,P,C)
+<- .concat("I am registering that you took ", Q, " units of medication ", N, Message);
+	.print(Message);
 	.date(YY, MM, DD); .time(HH, NN, SS);
-     +consumed(YY, MM, DD, HH, NN, SS, Medication).
-	 
-+!inform_owner(Medication,Qtd,Qi,Qf) : owner_liar(Qtd,Qi,Qf)
-<- 	.concat("You are lying me, you didn't take your dose", Msg);
-	.send(owner,tell,msg(Msg)).
+   +consumed(YY, MM, DD, HH, NN, SS, Medication).

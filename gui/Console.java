@@ -79,7 +79,7 @@ public class Console extends GUIArtifact {
                 signal("say", " medication prescription");
 
                 signal("newMedication",
-                        Literal.parseLiteral(name[i].getText()),
+                        Literal.parseLiteral(name[i].getText().toLowerCase()),
                         Integer.parseInt(qtd[i].getText()),
                         Integer.parseInt(period[i].getText()),
                         Literal.parseLiteral("C"));//Literal.parseLiteral(caducity[i].getText()));
@@ -91,6 +91,7 @@ public class Console extends GUIArtifact {
     void send(ActionEvent ev) {
         String texto = frame.getTextField().getText();
         //getObsProperty("say").updateValue(texto);
+
         signal("say", texto);
 
         frame.getTextField().setText("");
@@ -100,6 +101,13 @@ public class Console extends GUIArtifact {
         frame.appendToPane(frame.getTextArea(), texto, Color.DARK_GRAY);
         String salto = System.lineSeparator();
         frame.appendToPane(frame.getTextArea(), salto, Color.DARK_GRAY);
+
+        if (texto.startsWith("Taking")) {
+            String medication = texto.split(" ")[1].toLowerCase();
+            System.out.println("Owner will be taking medication " + medication + " by himself");
+
+            signal("take_independently", Literal.parseLiteral(medication));
+        }
     }
 
     @INTERNAL_OPERATION

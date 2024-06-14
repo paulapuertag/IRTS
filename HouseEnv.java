@@ -22,7 +22,6 @@ public class HouseEnv extends Environment {
 
     public static final Literal hm = Literal.parseLiteral("hand_in(medication)");
     public static final Literal sm = Literal.parseLiteral("taking(medication)");
-    public static final Literal hom = Literal.parseLiteral("has(owner,Medication)");
 
     public static final Literal af = Literal.parseLiteral("at(robot,fridge)");
     public static final Literal am = Literal.parseLiteral("at(robot,medicalkit)");
@@ -211,16 +210,19 @@ public class HouseEnv extends Environment {
         if (model.fridgeOpen) {
             addPercept("robot", Literal.parseLiteral("stock(beer," + model.availableBeers + ")"));
         }
-        if (model.medicationOpen) {
+        if (model.medicationOpen && ("robot").equals(model.agentOpeningMedication)) {
             Set<String> keys = model.medications.keySet();
             for (String key : keys) {
                 addPercept("robot", Literal.parseLiteral("stock(" + key + "," + model.medications.get(key) + ")"));
             }
         }
+
         if (model.doseCount > 0) {
+            Literal hom = Literal.parseLiteral("has(owner," + model.handedMedication + ")");
             addPercept("robot", hom);
             addPercept("owner", hom);
         }
+
     }
 
     @Override
@@ -264,7 +266,7 @@ public class HouseEnv extends Environment {
                 e.printStackTrace();
             }
         } else if (action.equals(om)) { // of = open(medicalkit)
-            result = model.openMedication();
+            result = model.openMedication(ag);
 
         } else if (action.equals(clm)) { // clf = close(medicalkit)
             result = model.closeMedication();
@@ -363,17 +365,16 @@ public class HouseEnv extends Environment {
             String name = "";
 
             name = medicine.toString();
-            //}
             System.out.println("getting medicine: " + name);
             try {
-                result = model.getMedication(name, (int) ((NumberTerm) action.getTerm(1)).solve());
+                result = model.getMedication(name, (int) ((NumberTerm) action.getTerm(1)).solve(), ag);
             } catch (Exception e) {
                 logger.info("Failed to execute action get!" + e);
             }
             //hand_in medicine
         } else if (action.getFunctor().equals("hand_in") && action.getArity() == 2) {
             try {
-                result = model.handInMedication(action.getTerm(0).toString(), (int) ((NumberTerm) action.getTerm(1)).solve());
+                result = model.handInMedication(action.getTerm(0).toString(), (int) ((NumberTerm) action.getTerm(1)).solve(), ag);
             } catch (Exception e) {
                 logger.info("Failed to execute action hand_in!" + e);
             }
@@ -386,6 +387,7 @@ public class HouseEnv extends Environment {
                     result = model.sipMedication();
                     if (!result) {
                         removePercept("owner", Literal.parseLiteral("has(owner," + model.handedMedication + ")"));
+                        removePercept("robot", Literal.parseLiteral("has(owner," + model.handedMedication + ")"));
                         model.handedMedication = "";
                     }
                 }

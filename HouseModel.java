@@ -40,7 +40,8 @@ public class HouseModel extends GridWorldModel {
     int doseCount = 0;	// how many dose of medication the owner did (equivalent to sip in beer)
 
     boolean fridgeOpen = false; 	// whether the fridge is open                                   
-    boolean medicationOpen = false; 	// whether the medication cabinet is open                                   
+    boolean medicationOpen = false; 	// whether the medication cabinet is open
+    String agentOpeningMedication = "";
     boolean carryingBeer = false; 	// whether the robot is carrying beer
     int sipCount = 0; 		// how many sip the owner did
     int availableBeers = 2; 		// how many beers are available
@@ -264,9 +265,10 @@ public class HouseModel extends GridWorldModel {
         return true;
     }
 
-    boolean openMedication() {
+    boolean openMedication(String ag) {
         if (!medicationOpen) {
             medicationOpen = true;
+            agentOpeningMedication = ag;
             return true;
         } else {
             return false;
@@ -276,6 +278,7 @@ public class HouseModel extends GridWorldModel {
     boolean closeMedication() {
         if (medicationOpen) {
             medicationOpen = false;
+            agentOpeningMedication = "";
             return true;
         } else {
             return false;
@@ -381,13 +384,13 @@ public class HouseModel extends GridWorldModel {
         return true;
     }
 
-    boolean getMedication(String medication, Integer requiredQuantity) {
+    boolean getMedication(String medication, Integer requiredQuantity, String agent) {
         Integer availability = getMedicationAvailable(medication);
         if (availability != -1) {
             if (medicationOpen && availability >= requiredQuantity && !carryingMedications) {
                 medications.put(medication, availability - requiredQuantity);
                 carryingMedications = true;
-                System.out.println("Taking " + requiredQuantity + " unit(s) of __" + medication + "__ current avalability: " + getMedicationAvailable(medication));
+                System.out.println("Taking " + requiredQuantity + " unit(s) of " + medication + ". Current avalability: " + getMedicationAvailable(medication));
                 return true;
             } else {
                 if (medicationOpen) {
@@ -395,10 +398,10 @@ public class HouseModel extends GridWorldModel {
                 };
                 if (availability > requiredQuantity) {
                     System.out.println("Medicine cabinet has enough of that medication. ");
-                }else if (availability < requiredQuantity) {
+                } else if (availability < requiredQuantity) {
                     System.out.println("Medicine cabinet dont has enough of that medication. ");
                 };
-                if (!carryingMedications) {
+                if (!carryingMedications && agent.equals("robot")) {
                     System.out.println("The robot is not bringing the medication. ");
                 };
                 return false;
@@ -421,8 +424,8 @@ public class HouseModel extends GridWorldModel {
         }
     }
 
-    boolean handInMedication(String medication, Integer dose) {
-        if (carryingMedications) {
+    boolean handInMedication(String medication, Integer dose, String agent) {
+        if (carryingMedications || agent.equals("owner")) {
             handedMedication = medication;
             doseCount = dose;
             carryingMedications = false;

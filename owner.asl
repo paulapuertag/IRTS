@@ -1,7 +1,7 @@
 /* owner */
 /* Initial goals */
-//medication(naproxen,1,2,C).
-//medication(ibuprofen,1,4,C).
+medication(naproxen,1,30,C).
+medication(ibuprofen,1,20,C).
 
 !setupTool("Owner", "Robot"). 
 
@@ -46,11 +46,11 @@
    +medication(N,Q,P,C).
 
 
-+has(owner,M) : true
++has(owner,M)
    <- !take(M).
 
--has(owner,M) : true
-   <- true.//!start.
+-has(owner,M)
+   <- true.
 
 // if the owner does not have medication finish, in other case while I have medication, take
 +!take(M) : not has(owner,M) // we change 'drink(beer)' for 'take(medication)'
@@ -65,12 +65,22 @@
       .print("this is owners random wait ", X*2000 + 10000);
       .wait((X*2000 + 10000)*10);// i get bored at random times
       !go_at(owner, random_place);
-      //.send(robot, askOne, time(_), R); // when bored, I ask the robot about the time
       .print(R);
       !start.
-	  
-+!warn_taken(Medication,Qtd) : medication(Medication, _, _)
-   <- .send(robot, tell, check_taken(Medication,Qtd)).
+
++take_independently(N) : medication(N,Q,P,C) <-
+   !go_at(owner, medicalkit);
+   open(medicalkit);
+   get(N,Q);
+   close(medicalkit);
+   hand_in(N,Q);
+   .concat("I have taken the prescribed dose of medication ",N, Message);
+   .print(Message);
+   !go_at(owner, chair1);
+   .send(robot, tell, anotate_taken(N)).
+
++take_independently(N) : not medication(N,Q,P,C) <-
+   show("No such medication in the cabinet").
 
 +!go_at(owner,P) : at(owner,P) <- true.
 +!go_at(owner,P) : not at(owner,P)
