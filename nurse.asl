@@ -17,6 +17,11 @@ critical_battery(5).
    close(medicalkit);
    !start.
 
++!start : vitals(T,AVG) & (AVG>123) <- //vitals check 
+   .println("ALERT critic vital signs ",AVG ," CALLING 911");
+   .wait(2000);
+   !start.
+
 +!start : not medication(_,_,_,_) <-
    .print("Waiting for the medicine recipe");
    .wait(2000);
@@ -30,6 +35,12 @@ critical_battery(5).
 +!start : medication(N,Q,P,C) & not too_soon(N)<-
    !bring(owner, medication(N,Q,P,C));    // print all members of the list
    !start.
+/* getting vitals from owner */
++deleteVitals : true <- 
+   .abolish(vitals(_,_)).
+
++addVitals(T,AVG) <-
+   +vitals(T,AVG).
 
 /*Medicine fact Updates from owner*/
 

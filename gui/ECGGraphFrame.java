@@ -5,10 +5,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import jason.functions.*;
 
 //import java.util.Random;
 
 public class ECGGraphFrame extends JFrame {
+
+    private ECGPanel ecgPanel;
 
 	public ECGGraphFrame() {
 		setTitle("ECG Signal Graph");
@@ -18,7 +21,7 @@ public class ECGGraphFrame extends JFrame {
 		Container contenedor = this.getContentPane();
 		contenedor.setLayout(new BorderLayout());
 
-        ECGPanel ecgPanel = new ECGPanel();
+        ecgPanel = new ECGPanel();
 		contenedor.add(ecgPanel);
 
 		setContentPane(contenedor); 
@@ -26,11 +29,32 @@ public class ECGGraphFrame extends JFrame {
         Timer timer = new Timer(400, ecgPanel);
         timer.start();
 
-	}                      
+	}  
+
+    public int getTime() {
+        return ecgPanel.getTime();
+    }
+
+    public int getMeanEcgData() {
+        return ecgPanel.getMeanEcgData();
+    }
+    
   
 class ECGPanel extends JPanel implements ActionListener {
     private int time = 0; // Simulated time
     private int[] ecgData; // Simulated ECG data
+
+    public int getTime() {
+        return time;
+    }
+
+    public int getMeanEcgData() {
+        double sum = 0;
+        for (int value : this.ecgData) {
+            sum += value;
+        }
+        return (int) (sum / this.ecgData.length);
+    }
 
     public ECGPanel() {
         ecgData = generateECGData(); // Generate sample ECG data

@@ -32,6 +32,7 @@ public class Console extends GUIArtifact {
 
     private String botName;  				// The name of the chatbot
     private String botMasterName = "Ivan"; 	// The default owner name of the chatbot
+    private int ecgTime = 0;
 
     public void setup() {
         frame = new MyFrame();
@@ -147,6 +148,18 @@ public class Console extends GUIArtifact {
     @OPERATION
     void setBotMasterName(String name) {
         botMasterName = name;
+    }
+
+    @OPERATION
+    void getVitals(String name) {
+        // This operation will send a signal to the agent with the vital signs
+        int time = ekgFrame.getTime();
+        if (time>ecgTime) {
+            this.ecgTime = time;
+            int avgVitals = ekgFrame.getMeanEcgData();
+            signal("updateVitals",time,avgVitals);
+        }
+        
     }
 
 }

@@ -1,15 +1,34 @@
 /* owner */
 /* Initial goals */
-medication(naproxen,1,2,C).
-medication(ibuprofen,1,4,C).
+//medication(naproxen,1,2,C).
+//medication(ibuprofen,1,4,C).
 
 !setupTool("Owner", "Robot"). 
-	    
+
 +!setupTool(Name, Id)
 	<- makeArtifact("GUI","gui.Console",[] , GUI);
 		setBotMasterName(Name);
 		setBotName(Id);
 		focus(GUI). 
+
+/** vitals functionality **/
+//!check_vitals.
+
++?time(T) : true
+  <-  time.check(T). // Internal action implemented in JAVA => Folder.class(Params)
+
++!check_vitals : true <-
+   getVitals(Name);
+   .println("current vital: ", vitals(T,AVG));   
+   .at("now +1 s", {+!check_vitals}).
+
+//receive a vital (signal) from gui console.java
++updateVitals(T,AVG) <-
+      .abolish(vitals(_,_));
+      .broadcast(tell, deleteVitals);
+      .println("Updating vitals: ", vitals(T,AVG));
+      .send(robot, tell, addVitals(T,AVG));
+      +vitals(T,AVG).
 
 //receive a new medicine (signal) from gui console.java
 +medUpdate(N) <-
