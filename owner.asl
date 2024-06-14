@@ -68,6 +68,7 @@ medication(ibuprofen,1,20,C).
       .print(R);
       !start.
 
+//take_independently called in Console.java with a signal
 +take_independently(N) : medication(N,Q,P,C) <-
    !go_at(owner, medicalkit);
    open(medicalkit);

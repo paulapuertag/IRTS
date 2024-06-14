@@ -15,5 +15,4 @@ MAS nurse_robot {
     agents: robot nurse.asl;
             owner agentArchClass MixedAgentArch
 				  agentArchClass jaca.CAgentArch;		
-            //supermarket provider.asl;
 }

@@ -156,18 +156,6 @@ low_battery :-
      !use_battery;
      !go_at(robot,P).
 
-// when the supermarket makes a delivery, try the 'has' goal again
-/*
-+delivered(M, _Qtd, _OrderId)[source(supermarket)]
-  : true <- 
-   !go_at(robot, delivery);
-  	.wait(200);
-	!go_at(robot, medicalkit);//medication here is the medical kit
-	.wait(200);
-	+available(M, medicalkit);
-	!bring(owner, M).
-*/
-
 // when the medication is opened, the medication stock is perceived
 // and thus the available belief is updated
 +stock(M, 0) :  available(M, medicalkit)
